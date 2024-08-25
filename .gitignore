@@ -1,0 +1,32 @@
+# Ignorar arquivos de configuração do Stack
+.stack-work/
+stack.yaml.lock
+
+# Ignorar arquivos de compilação
+dist/
+*.o
+*.hi
+
+# Ignorar arquivos de saída do GHC
+*.ghc
+
+# Ignorar arquivos gerados pelo GHCi
+*.hie
+*.hie-bios
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de cache
+.cache/
+
+# Ignorar arquivos temporários do editor
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Ignorar diretórios de IDEs
+.idea/
+.vscode/
