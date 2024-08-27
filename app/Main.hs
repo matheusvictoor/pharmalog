@@ -4,6 +4,7 @@ import System.Directory (doesFileExist)
 import Control.Monad (when)
 import Controllers.MenuController (menu)
 import Services.UserService (createUser)
+import Services.ChatService (simuleChat)
 
 main :: IO ()
 main = do
@@ -11,16 +12,19 @@ main = do
   let productDB = "_productDB.dat"
   let customerDB = "_customerDB.dat"
   let saleDB = "_saleDB.dat"
+  let chatDB = "_chatDB.dat"
       
   existUsers <- doesFileExist userDB
   existProducts <- doesFileExist productDB
   existCustomers <- doesFileExist customerDB
   existSales <- doesFileExist saleDB
+  existChat <- doesFileExist chatDB
 
   when (not existUsers) (writeFile userDB "")
   when (not existProducts) (writeFile productDB "")
   when (not existCustomers) (writeFile customerDB "")
   when (not existSales) (writeFile saleDB "")
+  when (not existChat) (writeFile chatDB "")
 
   programLoop
 
@@ -29,6 +33,8 @@ programLoop = do
   option <- menu
   case option of
     1 -> createUser >> continue
+    
+    50 -> simuleChat >> continue
     0 -> putStrLn "Encerrando o programa...."
     _ -> programLoop
   where
