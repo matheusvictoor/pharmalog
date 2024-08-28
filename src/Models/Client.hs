@@ -5,4 +5,5 @@ data Client = Client {
   cpf :: String,
   address :: String,
   phone :: String
+   , sales   :: [Sale]
 } deriving (Show, Read, Eq)
