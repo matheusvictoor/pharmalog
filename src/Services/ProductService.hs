@@ -1,4 +1,4 @@
-module Services.ProductService ( createProduct ) where
+module Services.ProductService ( createProduct,  ) where
 
 import Models.Product
 
