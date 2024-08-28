@@ -1,4 +1,4 @@
-module Services.ClientService where
+module Services.ClientService (createClient, getAllClients, getClientByCpf, updateClient, deleteClient, addSaleToClient) where
 
 import Models.Client
 import Models.Sale

@@ -1,4 +1,4 @@
-module Services.SaleService where
+module Services.SaleService (createSale, getAllSales, getSaleByClientId, updateSale, deleteSale) where
 
 import Models.Sale
 import Data.List (find, deleteBy)
