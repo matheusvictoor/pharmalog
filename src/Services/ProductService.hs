@@ -13,6 +13,11 @@ import Models.Product
 import Data.List (find)
 import Data.Time.Clock()
 import Data.Time
+    ( UTCTime,
+      addUTCTime,
+      getCurrentTime,
+      defaultTimeLocale,
+      parseTimeM )
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 

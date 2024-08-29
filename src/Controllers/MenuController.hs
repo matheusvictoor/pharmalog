@@ -1,5 +1,9 @@
 module Controllers.MenuController (menu) where
 
+import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
+import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, addSaleToClient)
+import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
+import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers, assignRoleToUser, createProductForAdmin, specificAdminFunctions, specificManagerFunctions, specificSellerFunctions)
 import System.IO (hFlush, stdout)
 
 menu :: IO Int
@@ -7,35 +11,52 @@ menu = do
   putStrLn "Pharmalog - Seu sistema de controle de farmacia (v1.0)"
   putStrLn "\n*****************************"
   putStrLn "\n***** Digite uma Opcao *****"
+
+  -- Menu de Usuários
   putStrLn "\n******** USUARIO *************"
-  putStrLn "1.   Cadastrar"
-  putStrLn "2.   Remover"
-  putStrLn "3.   Atualizar"
-  putStrLn "4.   Buscar"
-  putStrLn "5.   Buscar Todos"
+  putStrLn "1.   Cadastrar Usuário"
+  putStrLn "2.   Remover Usuário"
+  putStrLn "3.   Atualizar Usuário"
+  putStrLn "4.   Buscar Usuário"
+  putStrLn "5.   Buscar Todos os Usuários"
+  putStrLn "6.   Atribuir Função a Usuário"
+  putStrLn "7.   Funções Específicas do Administrador"
+  putStrLn "8.   Funções Específicas do Gerente"
+  putStrLn "9.   Funções Específicas do Vendedor"
 
-  putStrLn "\n******** MEDICAMENTO ********"
-  putStrLn "6.   Cadastrar"
-  putStrLn "7.   Remover"
-  putStrLn "8.   Atualizar"
-  putStrLn "9.   Buscar"
-  putStrLn "10.  Buscar Todos"
+  -- Menu de Produtos
+  putStrLn "\n******** PRODUTO *************"
+  putStrLn "10.  Cadastrar Produto"
+  putStrLn "11.  Remover Produto"
+  putStrLn "12.  Atualizar Produto"
+  putStrLn "13.  Buscar Produto"
+  putStrLn "14.  Buscar Todos os Produtos"
+  putStrLn "15.  Alertar sobre Baixo Estoque"
+  putStrLn "16.  Alertar sobre Produtos Perto de Vencer"
 
+  -- Menu de Vendas
   putStrLn "\n******** VENDAS *************"
-  putStrLn "11.  Cadastrar"
-  putStrLn "12.  Remover"
-  putStrLn "13.  Atualizar"
-  putStrLn "14.  Buscar"
-  putStrLn "15.  Buscar Todas"
+  putStrLn "17.  Cadastrar Venda"
+  putStrLn "18.  Remover Venda"
+  putStrLn "19.  Atualizar Venda"
+  putStrLn "20.  Buscar Venda"
+  putStrLn "21.  Buscar Todas as Vendas"
 
+  -- Menu de Clientes
   putStrLn "\n******** CLIENTE ************"
-  putStrLn "16.  Cadastrar"
-  putStrLn "17.  Remover"
-  putStrLn "18.  Atualizar"
-  putStrLn "19.  Buscar"
-  putStrLn "20.  Buscar Todos"
-  putStrLn "50.  Chat"
-  putStrLn "0 <- Sair\n"
+  putStrLn "22.  Cadastrar Cliente"
+  putStrLn "23.  Remover Cliente"
+  putStrLn "24.  Atualizar Cliente"
+  putStrLn "25.  Buscar Cliente"
+  putStrLn "26.  Buscar Todos os Clientes"
+  putStrLn "27.  Adicionar Venda a Cliente"
+
+  -- Menu de Chat
+  putStrLn "\n******** CHAT ************"
+  putStrLn "50.  Simular Chat"
+
+  -- Sair do Sistema
+  putStrLn "\n0.  Sair\n"
   putStr "Escolha uma opção: "
   hFlush stdout
   readLn

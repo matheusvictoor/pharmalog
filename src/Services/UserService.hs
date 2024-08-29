@@ -99,7 +99,6 @@ specificManagerFunctions :: IO ()
 specificManagerFunctions = do
   putStrLn "Gerente - Funções específicas para gerenciar clientes e visualizar relatórios."
 
--- Funções específicas do Vendedor
 specificSellerFunctions :: IO ()
 specificSellerFunctions = do
   putStrLn "Vendedor - Funções para alterar status de produto e visualizar relatórios de clientes."

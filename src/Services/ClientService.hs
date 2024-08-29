@@ -2,7 +2,7 @@
 module Services.ClientService (createClient, getAllClients, getClientByCpf, updateClient, deleteClient, addSaleToClient) where
 
 import Models.Client
-import Models.Sale (Sale)  -- Certifique-se de importar o tipo `Sale` corretamente
+import Models.Sale (Sale)  
 import Data.List (find, deleteBy)
 
 createClient :: IO ()
@@ -13,7 +13,7 @@ createClient = do
     <*> (putStrLn "Endereço: " >> getLine)
     <*> (putStrLn "CPF: " >> getLine)
     <*> (putStrLn "Telefone: " >> getLine)
-    <*> return []  -- Inicializa a lista de vendas vazia
+    <*> return []  
   appendFile "_customerDB.dat" (show client ++ "\n")
   putStrLn "** Cliente cadastrado com sucesso! **"
 
