@@ -62,6 +62,7 @@ processOption option = case option of
       mapM_ print users
       continue
 
+  
     6  -> createProduct >> continue
     7  -> do
       putStrLn "Nome do produto para remover: "
@@ -85,19 +86,30 @@ processOption option = case option of
       products <- getAllProducts
       mapM_ print products
       continue
-
-    11 -> createSale >> continue
+    11 -> do
+      putStrLn "Digite o limite de estoque para alerta: "
+      limit <- readLn
+      alertLowStockProducts limit
+      continue
     12 -> do
+      putStrLn "Digite a quantidade de dias para alerta de vencimento: "
+      daysBefore <- readLn
+      alertExpiringProducts daysBefore
+      continue
+
+    
+    13 -> createSale >> continue
+    14 -> do
       putStrLn "ID do cliente da venda para remover: "
       clientId <- readLn
       deleteSale clientId
       continue
-    13 -> do
+    15 -> do
       putStrLn "ID do cliente da venda para atualizar: "
       clientId <- readLn
       updateSale clientId
       continue
-    14 -> do
+    16 -> do
       putStrLn "ID do cliente da venda para buscar: "
       clientId <- readLn
       result <- getSaleByClientId clientId
@@ -105,23 +117,23 @@ processOption option = case option of
         Just sale -> print sale
         Nothing -> putStrLn "Venda não encontrada."
       continue
-    15 -> do
+    17 -> do
       sales <- getAllSales
       mapM_ print sales
       continue
 
-    16 -> createClient >> continue
-    17 -> do
+    18 -> createClient >> continue
+    19 -> do
       putStrLn "CPF do cliente para remover: "
       cpf <- getLine
       deleteClient cpf
       continue
-    18 -> do
+    20 -> do
       putStrLn "CPF do cliente para atualizar: "
       cpf <- getLine
       updateClient cpf
       continue
-    19 -> do
+    21 -> do
       putStrLn "CPF do cliente para buscar: "
       cpf <- getLine
       result <- getClientByCpf cpf
@@ -129,26 +141,19 @@ processOption option = case option of
         Just client -> print client
         Nothing -> putStrLn "Cliente não encontrado."
       continue
-    20 -> do
+    22 -> do
       clients <- getAllClients
       mapM_ print clients
       continue
 
-    21 -> do
-      putStrLn "Digite o limite de estoque para alerta: "
-      limit <- readLn
-      alertLowStockProducts limit
-      continue
-
-    22 -> do
-      putStrLn "Digite a quantidade de dias para alerta de vencimento: "
-      daysBefore <- readLn
-      alertExpiringProducts daysBefore
-      continue
-
     50 -> simuleChat >> continue
-    0  -> putStrLn "Encerrando o programa...."
-    _  -> programLoop
+
+   
+    0  -> putStrLn "Saindo do sistema..."
+
+    _  -> do
+      putStrLn "Opção inválida. Tente novamente."
+      programLoop
 
   where
     continue = programLoop
