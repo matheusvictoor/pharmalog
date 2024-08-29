@@ -1,10 +1,19 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.ClientService (createClient, getAllClients, getClientByCpf, updateClient, deleteClient, addSaleToClient) where
+module Services.ClientService (
+    createClient,
+    getAllClients,
+    getClientByCpf,
+    updateClient,
+    deleteClient,
+    addSaleToClient,
+    viewClientInfo
+) where
 
 import Models.Client
 import Models.Sale (Sale)  
-import Data.List (find, deleteBy)
+import Data.List (find)
 
+-- Função para criar um novo cliente
 createClient :: IO ()
 createClient = do
   client <- Client
@@ -17,32 +26,55 @@ createClient = do
   appendFile "_customerDB.dat" (show client ++ "\n")
   putStrLn "** Cliente cadastrado com sucesso! **"
 
+-- Função para obter todos os clientes
 getAllClients :: IO [Client]
 getAllClients = do
   contents <- readFile "_customerDB.dat"
   return $ map read (lines contents)
 
+-- Função para buscar um cliente pelo CPF
 getClientByCpf :: String -> IO (Maybe Client)
 getClientByCpf searchCpf = do
   clients <- getAllClients
   return $ find (\client -> cpf client == searchCpf) clients
 
+-- Função para visualizar as informações de um cliente
+viewClientInfo :: String -> IO ()
+viewClientInfo searchCpf = do
+  client <- getClientByCpf searchCpf
+  case client of
+    Just c -> putStrLn $ "Informações do Cliente:\n" ++ show c
+    Nothing -> putStrLn "Cliente não encontrado."
+
+-- Função para atualizar as informações de um cliente
 updateClient :: String -> IO ()
 updateClient searchCpf = do
   clients <- getAllClients
-  let updatedClients = map updateIfFound clients
+  updatedClients <- mapM updateIfFound clients
   writeFile "_customerDB.dat" (unlines $ map show updatedClients)
   putStrLn "** Cliente atualizado com sucesso! **"
   where
+    updateIfFound :: Client -> IO Client
     updateIfFound client
-      | cpf client == searchCpf = client { 
-                                      name = "Novo nome",  
-                                      age = 30,            
-                                      address = "Novo endereço", 
-                                      phone = "Novo telefone" 
-                                    }
-      | otherwise = client
+      | cpf client == searchCpf = do
+          putStrLn $ "Atualizando informações do cliente: " ++ name client
+          putStrLn "Novo Nome: "
+          newName <- getLine
+          putStrLn "Nova Idade: "
+          newAge <- readLn
+          putStrLn "Novo Endereço: "
+          newAddress <- getLine
+          putStrLn "Novo Telefone: "
+          newPhone <- getLine
+          return client { 
+            name = newName,  
+            age = newAge,            
+            address = newAddress, 
+            phone = newPhone 
+          }
+      | otherwise = return client
 
+-- Função para deletar um cliente pelo CPF
 deleteClient :: String -> IO ()
 deleteClient searchCpf = do
   clients <- getAllClients
@@ -50,6 +82,7 @@ deleteClient searchCpf = do
   writeFile "_customerDB.dat" (unlines $ map show filteredClients)
   putStrLn "** Cliente deletado com sucesso! **"
 
+-- Função para adicionar uma venda a um cliente
 addSaleToClient :: String -> Sale -> IO ()
 addSaleToClient searchCpf newSale = do
   clients <- getAllClients

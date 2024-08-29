@@ -5,7 +5,7 @@ import Control.Monad (when)
 import Controllers.MenuController (menu)
 import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers)
 import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
-import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients)
+import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient)
 import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
 import Services.ChatService (simuleChat)
 
@@ -62,7 +62,6 @@ processOption option = case option of
       mapM_ print users
       continue
 
-  
     6  -> createProduct >> continue
     7  -> do
       putStrLn "Nome do produto para remover: "
@@ -97,7 +96,6 @@ processOption option = case option of
       alertExpiringProducts daysBefore
       continue
 
-    
     13 -> createSale >> continue
     14 -> do
       putStrLn "ID do cliente da venda para remover: "
@@ -145,10 +143,21 @@ processOption option = case option of
       clients <- getAllClients
       mapM_ print clients
       continue
+    23 -> do
+      putStrLn "CPF do cliente para visualizar: "
+      cpf <- getLine
+      viewClientInfo cpf
+      continue
+    24 -> do
+      putStrLn "CPF do cliente para adicionar venda: "
+      cpf <- getLine
+      putStrLn "ID da venda a ser adicionada: "
+      sale <- readLn
+      addSaleToClient cpf sale
+      continue
 
     50 -> simuleChat >> continue
 
-   
     0  -> putStrLn "Saindo do sistema..."
 
     _  -> do
