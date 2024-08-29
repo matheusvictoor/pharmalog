@@ -1,10 +1,18 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.ProductService (createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts) where
+module Services.ProductService 
+  ( createProduct
+  , getProductById
+  , deleteProduct
+  , updateProduct
+  , getAllProducts
+  , alertLowStockProducts
+  , alertExpiringProducts
+  ) where
 
 import Models.Product
 import Data.List (find)
-import Data.Time.Format (defaultTimeLocale, parseTimeM)
-import Data.Time.Clock (UTCTime)
+import Data.Time.Clock()
+import Data.Time
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 
@@ -74,9 +82,24 @@ getAllProducts = do
 alertLowStockProducts :: Int -> IO ()
 alertLowStockProducts limit = do
   products <- getAllProducts
-  let lowStockProducts = filter (\p -> stock p < limit) products
-  if null lowStockProducts
-    then putStrLn "Todos os produtos estão com estoque suficiente."
-    else do
-      putStrLn "Alerta! Produtos com estoque baixo:"
-      mapM_ (\p -> putStrLn $ "Produto: " ++ name p ++ ", Estoque: " ++ show (stock p)) lowStockProducts
+  mapM_ alertProductStock products
+  where
+    alertProductStock prod =
+      if stock prod < limit
+        then putStrLn $ "Alerta! Produto: " ++ name prod ++ " está com estoque baixo. Estoque atual: " ++ show (stock prod)
+        else putStrLn $ "Produto: " ++ name prod ++ " está com estoque suficiente. Estoque atual: " ++ show (stock prod)
+
+
+
+alertExpiringProducts :: Int -> IO ()
+alertExpiringProducts daysBefore = do
+  products <- getAllProducts
+  currentTime <- getCurrentTime
+  mapM_ (checkProductExpiration currentTime daysBefore) products
+
+checkProductExpiration :: UTCTime -> Int -> Product -> IO ()
+checkProductExpiration currentTime daysBefore prod = do
+  let expiringDate = addUTCTime (fromIntegral (daysBefore * 86400)) currentTime
+  if expirationDate prod <= expiringDate
+    then putStrLn $ "Alerta! O produto \"" ++ name prod ++ "\" está perto de vencer ou já venceu. Data de Expiração: " ++ show (expirationDate prod)
+    else putStrLn $ "O produto \"" ++ name prod ++ "\" está ok. Data de Expiração: " ++ show (expirationDate prod)

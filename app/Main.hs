@@ -4,7 +4,7 @@ import System.Directory (doesFileExist)
 import Control.Monad (when)
 import Controllers.MenuController (menu)
 import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers)
-import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts)
+import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
 import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients)
 import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
 import Services.ChatService (simuleChat)
@@ -132,6 +132,18 @@ processOption option = case option of
     20 -> do
       clients <- getAllClients
       mapM_ print clients
+      continue
+
+    21 -> do
+      putStrLn "Digite o limite de estoque para alerta: "
+      limit <- readLn
+      alertLowStockProducts limit
+      continue
+
+    22 -> do
+      putStrLn "Digite a quantidade de dias para alerta de vencimento: "
+      daysBefore <- readLn
+      alertExpiringProducts daysBefore
       continue
 
     50 -> simuleChat >> continue
