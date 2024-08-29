@@ -16,7 +16,7 @@ main = do
   let customerDB = "_customerDB.dat"
   let saleDB = "_saleDB.dat"
   let chatDB = "_chatDB.dat"
-      
+
   existUsers <- doesFileExist userDB
   existProducts <- doesFileExist productDB
   existCustomers <- doesFileExist customerDB
@@ -34,20 +34,22 @@ main = do
 programLoop :: IO ()
 programLoop = do
   option <- menu
-  case option of
-    -- Usuário
-    1 -> createUser >> continue
-    2 -> do
+  processOption option
+
+processOption :: Int -> IO ()
+processOption option = case option of
+    1  -> createUser >> continue
+    2  -> do
       putStrLn "Nome do usuário para remover: "
       name <- getLine
       deleteUser name
       continue
-    3 -> do
+    3  -> do
       putStrLn "Nome do usuário para atualizar: "
       name <- getLine
       updateUser name
       continue
-    4 -> do
+    4  -> do
       putStrLn "Nome do usuário para buscar: "
       name <- getLine
       result <- getUserByName name
@@ -55,31 +57,35 @@ programLoop = do
         Just user -> print user
         Nothing -> putStrLn "Usuário não encontrado."
       continue
-    5 -> getAllUsers >>= mapM_ print >> continue
+    5  -> do
+      users <- getAllUsers
+      mapM_ print users
+      continue
 
-    -- Produto
-    6 -> createProduct >> continue
-    7 -> do
+    6  -> createProduct >> continue
+    7  -> do
       putStrLn "Nome do produto para remover: "
-      name <- getLine
-      deleteProduct name
+      productName <- getLine
+      deleteProduct productName
       continue
-    8 -> do
+    8  -> do
       putStrLn "Nome do produto para atualizar: "
-      name <- getLine
-      updateProduct name
+      productName <- getLine
+      updateProduct productName
       continue
-    9 -> do
+    9  -> do
       putStrLn "Nome do produto para buscar: "
-      name <- getLine
-      result <- getProductById name
+      productName <- getLine
+      result <- getProductById productName
       case result of
-        Just product -> print product
+        Just prod -> print prod
         Nothing -> putStrLn "Produto não encontrado."
       continue
-    10 -> getAllProducts >>= mapM_ print >> continue
+    10 -> do
+      products <- getAllProducts
+      mapM_ print products
+      continue
 
-    -- Venda
     11 -> createSale >> continue
     12 -> do
       putStrLn "ID do cliente da venda para remover: "
@@ -99,9 +105,11 @@ programLoop = do
         Just sale -> print sale
         Nothing -> putStrLn "Venda não encontrada."
       continue
-    15 -> getAllSales >>= mapM_ print >> continue
+    15 -> do
+      sales <- getAllSales
+      mapM_ print sales
+      continue
 
-    -- Cliente
     16 -> createClient >> continue
     17 -> do
       putStrLn "CPF do cliente para remover: "
@@ -121,17 +129,14 @@ programLoop = do
         Just client -> print client
         Nothing -> putStrLn "Cliente não encontrado."
       continue
-    20 -> getAllClients >>= mapM_ print >> continue
+    20 -> do
+      clients <- getAllClients
+      mapM_ print clients
+      continue
 
-    -- Chat
     50 -> simuleChat >> continue
+    0  -> putStrLn "Encerrando o programa...."
+    _  -> programLoop
 
-    -- Encerrar
-    0 -> putStrLn "Encerrando o programa...."
-
-    _ -> programLoop
   where
-    continue = do
-      putStrLn "\nDeseja voltar ao menu? (s/n)"
-      result <- getLine
-      if result == "s" then programLoop else putStrLn "Encerrando o programa..."
+    continue = programLoop

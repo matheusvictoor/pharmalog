@@ -2,7 +2,7 @@
 module Services.ProductService (createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts) where
 
 import Models.Product
-import Data.List (find, deleteBy)
+import Data.List (find)
 import Data.Time.Format (defaultTimeLocale, parseTimeM)
 import Data.Time.Clock (UTCTime)
 
@@ -12,29 +12,23 @@ createProduct :: IO ()
 createProduct = do
   !productId <- fmap (length . lines) (readFile "_productDB.dat")
   
-  product <- Product
+  newProduct <- Product
     <$> (putStrLn "Nome: " >> getLine)
     <*> (putStrLn "Descrição: " >> getLine)
     <*> (putStrLn "Categoria: " >> getLine)
-    
-    
     <*> (putStrLn "Data de Fabricação (YYYY-MM-DD): " >> getLine >>= parseDate)
-    
     <*> (putStrLn "Data de Expiração (YYYY-MM-DD): " >> getLine >>= parseDate)
-    
     <*> (putStrLn "Preço: " >> readLn)
     <*> (putStrLn "Estoque: " >> readLn)
   
-  appendFile "_productDB.dat" (show (Index (1+productId) product) ++ "\n")
+  appendFile "_productDB.dat" (show (Index (1 + productId) newProduct) ++ "\n")
   putStrLn "** Produto cadastrado com sucesso! **"
-
 
 parseDate :: String -> IO UTCTime
 parseDate str =
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" str of
     Just date -> return date
     Nothing   -> fail "Formato de data inválido. Use o formato YYYY-MM-DD."
-
 
 getProductById :: String -> IO (Maybe Product)
 getProductById searchName = do
@@ -59,14 +53,14 @@ updateProduct searchName = do
   putStrLn "Produto atualizado com sucesso! "
   where
     updateIfFound line =
-      let product = productData (read line :: Index Product)
-      in if name product == searchName
+      let prod = productData (read line :: Index Product)  
+      in if name prod == searchName
          then show (Index (index (read line :: Index Product)) (Product
             { name = searchName
             , description = "Nova descrição"
             , category = "Nova categoria"
-            , dateManufacture = dateManufacture product
-            , expirationDate = expirationDate product
+            , dateManufacture = dateManufacture prod
+            , expirationDate = expirationDate prod
             , price = 19.99
             , stock = 150
             }))

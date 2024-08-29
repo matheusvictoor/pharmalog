@@ -4,6 +4,7 @@ module Services.SaleService (createSale, getAllSales, getSaleByClientId, updateS
 import Models.Sale
 import Data.List (find, deleteBy)
 import Data.Time.Clock (UTCTime)
+import Data.Time.Format (defaultTimeLocale, parseTimeM)
 
 data Index a = Index { index :: Int, saleData :: a } deriving (Show, Read)
 
@@ -57,7 +58,6 @@ deleteSale searchClientId = do
   writeFile "_SaleDB.dat" (unlines filteredSales)
   putStrLn "** Venda deletada com sucesso! **"
 
--
 parseDate :: String -> IO UTCTime
 parseDate str =
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" str of

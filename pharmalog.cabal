@@ -18,10 +18,21 @@ extra-source-files:  README.md
 executable pharmalog
   hs-source-dirs:      app, src
   main-is:             Main.hs
-  other-modules:       Controllers.MenuController, Services.UserService, Services.ChatService
+  other-modules:       Controllers.MenuController,
+                       Services.UserService,
+                       Services.ChatService,
+                       Models.Client,
+                       Models.Product,
+                       Models.Message,
+                       Models.Sale,
+                       Models.User,
+                       Services.ClientService,
+                       Services.ProductService,
+                       Services.SaleService
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
-                       directory
+                       directory,
+                       time  
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
