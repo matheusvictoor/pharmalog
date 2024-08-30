@@ -21,10 +21,10 @@ import Data.Time
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 
+-- Função para criar um novo produto
 createProduct :: IO ()
 createProduct = do
-  !productId <- fmap (length . lines) (readFile "_productDB.dat")
-  
+  -- Solicitar informações do novo produto ao usuário
   newProduct <- Product
     <$> (putStrLn "Nome: " >> getLine)
     <*> (putStrLn "Descrição: " >> getLine)
@@ -34,9 +34,11 @@ createProduct = do
     <*> (putStrLn "Preço: " >> readLn)
     <*> (putStrLn "Estoque: " >> readLn)
   
-  appendFile "_productDB.dat" (show (Index (1 + productId) newProduct) ++ "\n")
+  -- Salvar o novo produto no arquivo _productDB.dat
+  appendFile "_productDB.dat" (show newProduct ++ "\n")
   putStrLn "** Produto cadastrado com sucesso! **"
 
+-- A função parseDate, que faz a conversão da string para a data:
 parseDate :: String -> IO UTCTime
 parseDate str =
   case parseTimeM True defaultTimeLocale "%Y-%m-%d" str of

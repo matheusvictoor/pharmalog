@@ -6,8 +6,11 @@ import Controllers.MenuController (menu)
 import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers)
 import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
 import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient)
+
 import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
 import Services.ChatService (simuleChat)
+import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers)
+
 
 main :: IO ()
 main = do
@@ -38,7 +41,7 @@ programLoop = do
 
 processOption :: Int -> IO ()
 processOption option = case option of
-    1  -> createUser >> continue
+    1  -> createUser >> getLine >> continue
     2  -> do
       putStrLn "Nome do usuário para remover: "
       name <- getLine
@@ -59,21 +62,24 @@ processOption option = case option of
       continue
     5  -> do
       users <- getAllUsers
-      mapM_ print users
+      if null users
+        then putStrLn "Nenhum usuário encontrado."
+        else mapM_ print users
       continue
 
-    6  -> createProduct >> continue
-    7  -> do
+
+    10  -> createProduct >> continue
+    11  -> do
       putStrLn "Nome do produto para remover: "
       productName <- getLine
       deleteProduct productName
       continue
-    8  -> do
+    12  -> do
       putStrLn "Nome do produto para atualizar: "
       productName <- getLine
       updateProduct productName
       continue
-    9  -> do
+    13  -> do
       putStrLn "Nome do produto para buscar: "
       productName <- getLine
       result <- getProductById productName
@@ -81,33 +87,33 @@ processOption option = case option of
         Just prod -> print prod
         Nothing -> putStrLn "Produto não encontrado."
       continue
-    10 -> do
+    14 -> do
       products <- getAllProducts
       mapM_ print products
       continue
-    11 -> do
+    15 -> do
       putStrLn "Digite o limite de estoque para alerta: "
       limit <- readLn
       alertLowStockProducts limit
       continue
-    12 -> do
+    16 -> do
       putStrLn "Digite a quantidade de dias para alerta de vencimento: "
       daysBefore <- readLn
       alertExpiringProducts daysBefore
       continue
 
-    13 -> createSale >> continue
-    14 -> do
+    17 -> createSale >> continue
+    18 -> do
       putStrLn "ID do cliente da venda para remover: "
       clientId <- readLn
       deleteSale clientId
       continue
-    15 -> do
+    19 -> do
       putStrLn "ID do cliente da venda para atualizar: "
       clientId <- readLn
       updateSale clientId
       continue
-    16 -> do
+    20 -> do
       putStrLn "ID do cliente da venda para buscar: "
       clientId <- readLn
       result <- getSaleByClientId clientId
@@ -115,23 +121,23 @@ processOption option = case option of
         Just sale -> print sale
         Nothing -> putStrLn "Venda não encontrada."
       continue
-    17 -> do
+    21 -> do
       sales <- getAllSales
       mapM_ print sales
       continue
 
-    18 -> createClient >> continue
-    19 -> do
+    22 -> createClient >> continue
+    23 -> do
       putStrLn "CPF do cliente para remover: "
       cpf <- getLine
       deleteClient cpf
       continue
-    20 -> do
+    24 -> do
       putStrLn "CPF do cliente para atualizar: "
       cpf <- getLine
       updateClient cpf
       continue
-    21 -> do
+    25 -> do
       putStrLn "CPF do cliente para buscar: "
       cpf <- getLine
       result <- getClientByCpf cpf
@@ -139,16 +145,13 @@ processOption option = case option of
         Just client -> print client
         Nothing -> putStrLn "Cliente não encontrado."
       continue
-    22 -> do
-      clients <- getAllClients
-      mapM_ print clients
-      continue
-    23 -> do
+    26  -> createClient >> continue
+    27 -> do
       putStrLn "CPF do cliente para visualizar: "
       cpf <- getLine
       viewClientInfo cpf
       continue
-    24 -> do
+    28 -> do
       putStrLn "CPF do cliente para adicionar venda: "
       cpf <- getLine
       putStrLn "ID da venda a ser adicionada: "

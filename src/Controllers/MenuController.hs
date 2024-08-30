@@ -1,6 +1,5 @@
 module Controllers.MenuController (menu) where
 
-
 import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, addSaleToClient, viewClientInfo)
 import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
 import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers, assignRoleToUser, createProductForAdmin, specificAdminFunctions, specificManagerFunctions, specificSellerFunctions)
@@ -49,7 +48,7 @@ menu = do
   putStrLn "24.  Atualizar Cliente"
   putStrLn "25.  Buscar Cliente"
   putStrLn "26.  Buscar Todos os Clientes"
-  putStrLn "27.  Visualizar Informações do Cliente" -- Nova funcionalidade adicionada
+  putStrLn "27.  Visualizar Informações do Cliente" 
   putStrLn "28.  Adicionar Venda a Cliente"
 
   -- Menu de Chat

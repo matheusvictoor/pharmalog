@@ -4,6 +4,8 @@ module Services.UserService (createUser, getAllUsers, getUserByName, updateUser,
 import Models.User
 import Data.List (find, deleteBy)
 import Data.Time.Clock (UTCTime)
+import Control.DeepSeq (deepseq)
+import System.IO (withFile, IOMode(ReadMode, WriteMode), hGetContents, hPutStr)
 
 data Index a = Index { index :: Int, userData :: a } deriving (Show, Read)
 
@@ -32,7 +34,8 @@ readRole = do
 getAllUsers :: IO [User]
 getAllUsers = do
   contents <- readFile "_userDB.dat"
-  return $ map (userData . read) (lines contents)
+  let users = map (userData . read) (lines contents) :: [User]
+  return users
 
 -- Busca um usuário pelo nome no arquivo _userDB.dat
 getUserByName :: String -> IO (Maybe User)
@@ -41,10 +44,18 @@ getUserByName searchName = find (\user -> name user == searchName) <$> getAllUse
 -- Atualiza as informações de um usuário
 updateUser :: String -> IO ()
 updateUser searchName = do
-  contents <- readFile "_userDB.dat"
+  -- Ler o conteúdo do arquivo garantindo que seja completamente avaliado
+  contents <- withFile "_userDB.dat" ReadMode $ \handle -> do
+    c <- hGetContents handle
+    c `deepseq` return c  -- Força a avaliação completa do conteúdo
+  
   let users = lines contents
   let updatedUsers = map updateIfFound users
-  writeFile "_userDB.dat" (unlines updatedUsers)
+  
+  -- Escrever o conteúdo atualizado de volta ao arquivo
+  withFile "_userDB.dat" WriteMode $ \handle -> do
+    hPutStr handle (unlines updatedUsers)
+  
   putStrLn "** Usuário atualizado com sucesso! **"
   where
     updateIfFound line =
@@ -57,13 +68,23 @@ updateUser searchName = do
             }))
          else line
 
--- Deleta um usuário pelo nome
+
+
+
 deleteUser :: String -> IO ()
 deleteUser searchName = do
-  contents <- readFile "_userDB.dat"
+  -- Abrindo o arquivo para leitura
+  contents <- withFile "_userDB.dat" ReadMode $ \handle -> do
+    c <- hGetContents handle
+    c `deepseq` return c  -- Força a leitura completa do conteúdo
+  
   let users = lines contents
   let filteredUsers = filter (\line -> name (userData (read line :: Index User)) /= searchName) users
-  writeFile "_userDB.dat" (unlines filteredUsers)
+  
+  -- Abrindo o arquivo para escrita (substituindo o conteúdo)
+  withFile "_userDB.dat" WriteMode $ \handle -> do
+    hPutStr handle (unlines filteredUsers)
+  
   putStrLn "** Usuário deletado com sucesso! **"
 
 -- Função específica para o Administrador criar um produto
