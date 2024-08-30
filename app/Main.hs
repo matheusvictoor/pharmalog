@@ -1,10 +1,13 @@
 module Main (main) where
 
 import System.Directory (doesFileExist)
-import Control.Monad (when)
+import Control.Monad (when, forever)
+import Control.Concurrent (forkIO, newChan, readChan, writeChan, Chan)
 import Controllers.MenuController (menu)
 import Services.UserService (createUser)
-import Services.ChatService (simuleChat)
+import Services.ChatService (startChat)
+import System.IO (hFlush, stdout)
+import Models.Message (Message(..))
 
 main :: IO ()
 main = do
@@ -26,19 +29,27 @@ main = do
   when (not existSales) (writeFile saleDB "")
   when (not existChat) (writeFile chatDB "")
 
-  programLoop
+  chatChannel <- newChan
+  _ <- forkIO $ forever $ do
+    message <- readChan chatChannel
+    appendFile chatDB (sender message ++ ": " ++ content message ++ "\n")
 
-programLoop :: IO ()
-programLoop = do
+  programLoop chatChannel
+
+programLoop :: Chan Message -> IO ()
+programLoop chatChannel = do
   option <- menu
   case option of
     1 -> createUser >> continue
     
-    50 -> simuleChat >> continue
-    0 -> putStrLn "Encerrando o programa...."
-    _ -> programLoop
+    50 -> startChat chatChannel >> continue
+
+    0 -> putStrLn "\nEncerrando o programa..."
+    _ -> programLoop chatChannel
   where
     continue = do
-      putStrLn "\nDeseja voltar ao menu? (s/n)"
+      putStr "\nDeseja voltar ao menu? (s/n): "
+      hFlush stdout
       result <- getLine
-      if result == "s" then programLoop else putStrLn "Encerrando o programa..."
+      if result == "s" then programLoop chatChannel else putStrLn "\nEncerrando o programa..."
+

@@ -37,6 +37,7 @@ A estrutura do projeto é organizada da seguinte forma:
 |   |   └── MenuController.hs
 |   └── /Models
 |   |   ├── Client.hs
+|   |   ├── Message.hs
 |   |   ├── Product.hs
 |   |   ├── Sale.hs
 |   |   ├── User.hs

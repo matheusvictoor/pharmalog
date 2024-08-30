@@ -1,5 +1,7 @@
 module Controllers.MenuController (menu) where
 
+import System.IO (hFlush, stdout)
+
 menu :: IO Int
 menu = do
   putStrLn "Pharmalog - Seu sistema de controle de farmacia (v1.0)"
@@ -34,5 +36,11 @@ menu = do
   putStrLn "50.  Chat"
   putStrLn "0 <- Sair\n"
 
+  putStr ("Opção selecionada -> ")
+
+  hFlush stdout
   option <- readLn
+  putStrLn ""
+  
   return option
+  
