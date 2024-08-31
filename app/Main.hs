@@ -10,6 +10,7 @@ import Services.UserService (createUser, deleteUser, updateUser, getUserByName, 
 import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
 import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient)
 import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
+import Services.RelatorioProduct(relatorioPorPreco, relatorioPorCategoria, relatorioPorEstoque, exibirProdutos, menuRelatorio)
 
 import System.IO (hFlush, stdout)
 import Models.Message (Message(..))
@@ -150,19 +151,15 @@ programLoop chatChannel = do
         Just client -> print client
         Nothing -> putStrLn "Cliente não encontrado."
       continue
-    26  -> createClient >> continue
-    27 -> do
-      putStrLn "CPF do cliente para visualizar: "
+    26 -> do
+      putStrLn "Buscar todos os clientes: "
       cpf <- getLine
       viewClientInfo cpf
       continue
-    28 -> do
-      putStrLn "CPF do cliente para adicionar venda: "
-      cpf <- getLine
-      putStrLn "ID da venda a ser adicionada: "
-      sale <- readLn
-      addSaleToClient cpf sale
-      continue
+    27 -> relatorioPorPreco >> continue
+    28 -> relatorioPorCategoria >> continue
+    29 -> relatorioPorEstoque >> continue
+    30 -> menuRelatorio >> continue
       
     50 -> startChat chatChannel >> continue
 

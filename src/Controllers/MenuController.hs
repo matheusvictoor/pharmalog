@@ -45,8 +45,11 @@ menu = do
   putStrLn "24.  Atualizar"
   putStrLn "25.  Buscar"
   putStrLn "26.  Buscar Todos os Clientes"
-  putStrLn "27.  Visualizar Informações do Cliente" 
-  putStrLn "28.  Adicionar Venda a Cliente"
+
+  putStrLn "\n********* RELATORIOS *************"
+  putStrLn "27.  Relatório por faixa de preço"
+  putStrLn "28.  Relatório por categoria"
+  putStrLn "29.  Relatório por faixa de estoque"
 
   putStrLn "\n********* CHAT *************"
   putStrLn "50.  Chat"
