@@ -14,8 +14,8 @@ createSale = do
   sale <- Sale
     <$> (putStrLn "ID do Cliente: " >> readLn)
     <*> (putStrLn "ID do Vendedor: " >> readLn)
-    <*> (putStrLn "Valor da Venda: " >> readLn)
     <*> (putStrLn "Data da Venda (YYYY-MM-DD): " >> getLine >>= parseDate)
+    <*> (putStrLn "Valor da Venda: " >> readLn)
     <*> return []
   appendFile "_SaleDB.dat" (show (Index (1+saleId) sale) ++ "\n")
   putStrLn "** Venda registrada com sucesso! **"

@@ -49,13 +49,13 @@ getProductById :: String -> IO (Maybe Product)
 getProductById searchName = do
   contents <- readFile "_productDB.dat"
   let products = map (productData . read) (lines contents) :: [Product]
-  return $ find (\p -> name p == searchName) products
+  return $ find (\p -> nameProduct p == searchName) products
 
 deleteProduct :: String -> IO ()
 deleteProduct searchName = do
   contents <- readFile "_productDB.dat"
   let products = lines contents
-  let filteredProducts = filter (\line -> name (productData (read line :: Index Product)) /= searchName) products
+  let filteredProducts = filter (\line -> nameProduct (productData (read line :: Index Product)) /= searchName) products
   writeFile "_productDB.dat" (unlines filteredProducts)
   putStrLn "** Produto deletado com sucesso! **"
 
@@ -69,9 +69,9 @@ updateProduct searchName = do
   where
     updateIfFound line =
       let prod = productData (read line :: Index Product)  
-      in if name prod == searchName
+      in if nameProduct prod == searchName
          then show (Index (index (read line :: Index Product)) (Product
-            { name = searchName
+            { nameProduct = searchName
             , description = "Nova descrição"
             , category = "Nova categoria"
             , dateManufacture = dateManufacture prod
@@ -93,8 +93,8 @@ alertLowStockProducts limit = do
   where
     alertProductStock prod =
       if stock prod < limit
-        then putStrLn $ "Alerta! Produto: " ++ name prod ++ " está com estoque baixo. Estoque atual: " ++ show (stock prod)
-        else putStrLn $ "Produto: " ++ name prod ++ " está com estoque suficiente. Estoque atual: " ++ show (stock prod)
+        then putStrLn $ "Alerta! Produto: " ++ nameProduct prod ++ " está com estoque baixo. Estoque atual: " ++ show (stock prod)
+        else putStrLn $ "Produto: " ++ nameProduct prod ++ " está com estoque suficiente. Estoque atual: " ++ show (stock prod)
 
 
 
@@ -108,5 +108,5 @@ checkProductExpiration :: UTCTime -> Int -> Product -> IO ()
 checkProductExpiration currentTime daysBefore prod = do
   let expiringDate = addUTCTime (fromIntegral (daysBefore * 86400)) currentTime
   if expirationDate prod <= expiringDate
-    then putStrLn $ "Alerta! O produto \"" ++ name prod ++ "\" está perto de vencer ou já venceu. Data de Expiração: " ++ show (expirationDate prod)
-    else putStrLn $ "O produto \"" ++ name prod ++ "\" está ok. Data de Expiração: " ++ show (expirationDate prod)
+    then putStrLn $ "Alerta! O produto \"" ++ nameProduct prod ++ "\" está perto de vencer ou já venceu. Data de Expiração: " ++ show (expirationDate prod)
+    else putStrLn $ "O produto \"" ++ nameProduct prod ++ "\" está ok. Data de Expiração: " ++ show (expirationDate prod)

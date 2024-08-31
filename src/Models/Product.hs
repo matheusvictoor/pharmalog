@@ -2,7 +2,7 @@ module Models.Product where
 
 import Data.Time.Clock (UTCTime)
 data Product = Product
-  { name            :: String
+  { nameProduct            :: String
   , description     :: String
   , category        :: String
   , dateManufacture :: UTCTime
