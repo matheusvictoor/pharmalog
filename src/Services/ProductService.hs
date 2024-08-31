@@ -1,6 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.ProductService ( createProduct, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
--- module Services.ProductService ( createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
+
+module Services.ProductService ( createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
 
 import Models.Product
 import Data.List (find)
@@ -13,7 +13,7 @@ data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 -- Função para criar um novo produto
 createProduct :: IO ()
 createProduct = do
-  -- Solicitar informações do novo produto ao usuário
+  !productId <- fmap (length . lines) (readFile "_productDB.dat")
   newProduct <- Product
     <$> (putStrLn "Nome: " >> getLine)
     <*> (putStrLn "Descrição: " >> getLine)
@@ -24,7 +24,7 @@ createProduct = do
     <*> (putStrLn "Estoque: " >> readLn)
   
   -- Salvar o novo produto no arquivo _productDB.dat
-  appendFile "_productDB.dat" (show newProduct ++ "\n")
+  appendFile "_productDB.dat" (show (Index (1+productId) newProduct) ++ "\n")
   putStrLn "** Produto cadastrado com sucesso! **"
 
 -- A função parseDate, que faz a conversão da string para a data:
@@ -34,22 +34,26 @@ parseDate str =
     Just date -> return date
     Nothing   -> fail "Formato de data inválido. Use o formato YYYY-MM-DD."
 
--- getProductById :: IO ()
--- getProductById = do
---   putStrLn "ID do produto para buscar: "
---   productId <- readLn
---   contents <- readFile "_productDB.dat"
---   let products = map (productData . (read :: String -> Index Product)) (lines contents)
---   return $ find (\p -> productId p == searchName) products of
---     Just p -> putStrLn $ "Informações do produto:\n" ++ show p
---     Nothing -> putStrLn "Produto não encontrado."
+getProductById :: IO ()
+getProductById = do
+  putStrLn "ID do produto para buscar: "
+  productId <- readLn
+  contents <- readFile "_productDB.dat"
+
+  let products = map (read :: String -> Index Product) (lines contents)
+
+  case find (\p -> index p == productId) products of
+    Just p -> putStrLn $ "Informações do produto:\n" ++ show p
+    Nothing -> putStrLn "Produto não encontrado."
 
 getProductByName :: IO ()
 getProductByName = do
   putStrLn "Nome do produto para buscar: "
   productNameSearched <- getLine
   contents <- readFile "_productDB.dat"
-  let products = map (read :: String -> Product) (lines contents)
+
+  let products = map (productData . read) (lines contents)
+
   case find (\p -> nameProduct p == productNameSearched) products of
     Just p -> putStrLn $ "Informações do produto:\n" ++ show p
     Nothing -> putStrLn "Produto não encontrado."
@@ -132,7 +136,7 @@ menuProduct = do
   
   case option of
     "1" -> createProduct
-    -- "2" -> getProductById
+    "2" -> getProductById
     "3" -> getProductByName
     -- "4" -> getAllProducts
     -- "5" -> updateProduct
