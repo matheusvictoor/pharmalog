@@ -1,46 +1,62 @@
 module Controllers.MenuController (menu) where
 
+import Services.ClientService ()
+import Services.SaleService ()
+import Services.UserService ()
 import System.IO (hFlush, stdout)
 
 menu :: IO Int
 menu = do
   putStrLn "Pharmalog - Seu sistema de controle de farmacia (v1.0)"
+  
+  putStrLn "\n******************************"
+  putStrLn "\n****** Digite uma Opcao ******"
 
-  putStrLn "\n*****************************"
-  putStrLn "\n***** Digite uma Opcao *****"
-  putStrLn "\n******** USARIO *************"
+  putStrLn "\n********* USARIO *************"
   putStrLn "1.   Cadastrar"
   putStrLn "2.   Remover"
   putStrLn "3.   Atualizar"
   putStrLn "4.   Buscar"
-  putStrLn "5.   Buscar Todos"
+  putStrLn "5.   Buscar Todos os Usuários"
+  putStrLn "6.   Atribuir Função a Usuário"
+  putStrLn "7.   Funções Específicas do Administrador"
+  putStrLn "8.   Funções Específicas do Gerente"
+  putStrLn "9.   Funções Específicas do Vendedor"
 
-  putStrLn "\n******** MEDICAMENTO ********"
-  putStrLn "6.   Cadastrar"
-  putStrLn "7.   Remover"
-  putStrLn "8.   Atualizar"
-  putStrLn "9.   Buscar"
-  putStrLn "10.  Buscar Todos"
+  putStrLn "\n********* PRODUTO *************"
+  putStrLn "10.  Cadastrar"
+  putStrLn "11.  Remover"
+  putStrLn "12.  Atualizar"
+  putStrLn "13.  Buscar"
+  putStrLn "14.  Buscar Todos os Produtos"
+  putStrLn "15.  Alertar sobre Baixo Estoque"
+  putStrLn "16.  Alertar sobre Produtos Perto de Vencer"
 
-  putStrLn "\n******** VENDAS *************"
-  putStrLn "11.  Cadastrar"
-  putStrLn "14.  Buscar"
-  putStrLn "15.  Buscar Todos"
+  putStrLn "\n********* VENDAS **************"
+  putStrLn "17.  Cadastrar"
+  putStrLn "18.  Remover"
+  putStrLn "19.  Atualizar"
+  putStrLn "20.  Buscar"
+  putStrLn "21.  Buscar Todas as Vendas"
 
-  putStrLn "\n******** CLIENTE ************"
-  putStrLn "16.  Cadastrar"
-  putStrLn "17.  Remover"
-  putStrLn "18.  Atualizar"
-  putStrLn "19.  Buscar"
-  putStrLn "20.  Buscar Todos"
+  putStrLn "\n********* CLIENTE *************"
+  putStrLn "22.  Cadastrar"
+  putStrLn "23.  Remover"
+  putStrLn "24.  Atualizar"
+  putStrLn "25.  Buscar"
+  putStrLn "26.  Buscar Todos os Clientes"
+  putStrLn "27.  Visualizar Informações do Cliente" 
+  putStrLn "28.  Adicionar Venda a Cliente"
+
+  putStrLn "\n********* CHAT *************"
   putStrLn "50.  Chat"
-  putStrLn "0 <- Sair\n"
 
-  putStr ("Opção selecionada -> ")
+  putStrLn "\n0 <- Sair\n"
+
+  putStr ("Escolha uma opção -> ")
 
   hFlush stdout
   option <- readLn
   putStrLn ""
   
   return option
-  

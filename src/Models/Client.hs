@@ -1,8 +1,12 @@
 module Models.Client where
 
-data Client = Client { 
-  name :: String,
-  cpf :: String,
-  address :: String,
-  phone :: String
-} deriving (Show, Read, Eq)
+import Models.Sale (Sale)
+
+data Client = Client
+  { name    :: String
+  , age     :: Int
+  , address :: String
+  , cpf     :: String
+  , phone   :: String
+  , sales   :: [Sale]
+  } deriving (Show, Read, Eq)
