@@ -4,7 +4,7 @@ import Models.Product (Product)
 
 data Sale = Sale {
   clientId :: Int,
-  sellerId   :: Int,
+  sellerId :: Int,
   dateSale :: UTCTime,
   totalSale :: Double,
   products :: [Product]

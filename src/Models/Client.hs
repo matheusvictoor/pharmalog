@@ -1,10 +1,9 @@
 module Models.Client where
-
 import Models.Sale (Sale)
 
 data Client = Client { 
   nameClient :: String,
-  age     :: Int,
+  age :: Int,
   cpf :: String,
   address :: String,
   phone :: String,
