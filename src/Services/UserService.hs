@@ -2,10 +2,11 @@
 module Services.UserService (createUser, getAllUsers, getUserById, getUserByName, updateUser, deleteUser, assignRoleToUser,specificAdminFunctions, specificManagerFunctions, specificSellerFunctions, menuUser) where
 
 import Models.User
-import Data.List (find, deleteBy)
+import Data.List (find, isPrefixOf)
 import Data.Time.Clock (UTCTime)
 import Control.DeepSeq (deepseq)
-import System.IO (hFlush, stdout, withFile, IOMode(ReadMode, WriteMode), hGetContents, hPutStr)
+import System.IO (hFlush, stdout, withFile, hClose, hGetContents, hPutStr, openTempFile)
+import System.Directory (removeFile, renameFile)
 
 data Index a = Index { index :: Int, userData :: a } deriving (Show, Read)
 
@@ -69,7 +70,6 @@ getUserByName = do
       printUser u
     Nothing -> putStrLn "Usuário não encontrado."
 
--- Atualiza as informações de um usuário
 updateUser :: IO ()
 updateUser = do
   contents <- readFile "_userDB.dat"
@@ -108,20 +108,18 @@ updateUser = do
           return (show (Index userIndex updatedUser))
         else return line
 
-deleteUser :: String -> IO ()
-deleteUser searchName = do
-  -- Abrindo o arquivo para leitura
-  contents <- withFile "_userDB.dat" ReadMode $ \handle -> do
-    c <- hGetContents handle
-    c `deepseq` return c  -- Força a leitura completa do conteúdo
-  
+deleteUser :: IO ()
+deleteUser = do
+  putStrLn "ID do usuário a ser deletado: "
+  userId <- getLine
+  (tempName, tempHandle) <- openTempFile "." "temp"
+  contents <- readFile "_userDB.dat"
   let users = lines contents
-  let filteredUsers = filter (\line -> name (userData (read line :: Index User)) /= searchName) users
-  
-  -- Abrindo o arquivo para escrita (substituindo o conteúdo)
-  withFile "_userDB.dat" WriteMode $ \handle -> do
-    hPutStr handle (unlines filteredUsers)
-  
+      filteredUsers = filter (not . isPrefixOf ("Index {index = " ++ userId ++ ",") ) users
+  hPutStr tempHandle (unlines filteredUsers)
+  hClose tempHandle
+  removeFile "_userDB.dat"
+  renameFile tempName "_userDB.dat"
   putStrLn "** Usuário deletado com sucesso! **"
 
 -- Função para atribuir uma função a um usuário existente
@@ -188,7 +186,7 @@ menuUser = do
     "3" -> getUserByName
     "4" -> showAllUsers
     "5" -> updateUser
-    -- "6" -> deleteUser
+    "6" -> deleteUser
     -- "7" -> assignRoleToUser
     "0" -> putStrLn "\n<---"
     _   -> putStrLn "Opção inválida. Tente novamente." >> menuUser
