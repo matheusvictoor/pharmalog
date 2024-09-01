@@ -18,7 +18,7 @@ createSale = do
     <*> (putStrLn "Data da Venda (YYYY-MM-DD): " >> getLine >>= parseDate)
     <*> (putStrLn "Valor da Venda (9.99): " >> readLn)
     <*> return []
-  appendFile "_saleDB.dat" (show (Index (1+saleId) sale) ++ "\n")
+  appendFile "_saleDB.dat" (show (Index (1 + saleId) sale) ++ "\n")
   putStrLn "** Venda registrada com sucesso! **"
 
 getAllSales :: IO [Sale]
@@ -26,7 +26,7 @@ getAllSales = do
   contents <- readFile "_saleDB.dat"
   return $ map (saleData . read) (lines contents)
 
-getSaleByClientCpf :: Int -> IO (Maybe Sale)
+getSaleByClientId :: Int -> IO (Maybe Sale)
 getSaleByClientId searchClientId = do
   sales <- getAllSales
   return $ find (\sale -> clientId sale == searchClientId) sales
@@ -68,9 +68,9 @@ parseDate str =
 menuSale :: IO ()
 menuSale = do
   putStrLn "\nSelecione uma opção:"
-  putStrLn "1.  Cadastrar um nova venda"
-  putStrLn "2.  Buscar um cliente por CPF"
-  putStrLn "3.  Buscar todos os clientes"
+  putStrLn "1. Cadastrar um nova venda"
+  putStrLn "2. Buscar um cliente por CPF"
+  putStrLn "3. Buscar todas as vendas"
   putStrLn "0 <- Voltar"
 
   putStr "\nOpção -> "
@@ -80,8 +80,17 @@ menuSale = do
 
   case option of
     "1" -> createSale
-    "2" -> getSaleByClientCpf
-    -- "3" -> getAllSales
+    "2" -> do
+        putStrLn "CPF do Cliente: "
+        clientId <- readLn
+        sale <- getSaleByClientId clientId
+        case sale of
+            Just s  -> print s
+            Nothing -> putStrLn "Cliente não encontrado."
+    "3" -> do
+        sales <- getAllSales
+        mapM_ print sales
     "0" -> putStrLn "\n<---"
     _   -> putStrLn "Opção inválida. Tente novamente." >> menuSale
+
   putStrLn ""
