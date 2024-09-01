@@ -42,7 +42,9 @@ getProductById = do
   contents <- readFile "_productDB.dat"
   let products = map (read :: String -> Index Product) (lines contents)
   case find (\p -> index p == productId) products of
-    Just p -> putStrLn $ "Informações do produto:\n" ++ show p
+    Just p -> do
+      putStrLn $ "\nInformações do produto:\n"
+      printProductWithIndex p
     Nothing -> putStrLn "Produto não encontrado."
 
 getProductByName :: IO ()
@@ -51,8 +53,10 @@ getProductByName = do
   productNameSearched <- getLine
   contents <- readFile "_productDB.dat"
   let products = map (productData . read) (lines contents)
-  case find (\p -> nameProduct p == productNameSearched) products of
-    Just p -> putStrLn $ "Informações do produto:\n" ++ show p
+  case find (\p -> nameProduct (productData p) == productNameSearched) products of
+    Just p -> do
+      putStrLn $ "\nInformações do produto:\n"
+      printProductWithIndex p
     Nothing -> putStrLn "Produto não encontrado."
 
 deleteProduct :: IO ()
