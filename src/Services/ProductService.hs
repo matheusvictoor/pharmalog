@@ -3,10 +3,11 @@
 module Services.ProductService ( createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, showAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
 
 import Models.Product
-import Data.List (find)
+import Data.List (find, isPrefixOf)
 import Data.Time.Clock()
 import Data.Time ( UTCTime, addUTCTime, getCurrentTime, defaultTimeLocale, parseTimeM )
 import System.IO (hFlush, stdout)
+import System.IO (readFile, writeFile)
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 
@@ -54,11 +55,13 @@ getProductByName = do
     Just p -> putStrLn $ "Informações do produto:\n" ++ show p
     Nothing -> putStrLn "Produto não encontrado."
 
-deleteProduct :: String -> IO ()
-deleteProduct searchName = do
+deleteProduct :: IO ()
+deleteProduct = do
+  putStrLn "ID do produto a ser deletado: "
+  productId <- getLine
   contents <- readFile "_productDB.dat"
   let products = lines contents
-  let filteredProducts = filter (\line -> nameProduct (productData (read line :: Index Product)) /= searchName) products
+      filteredProducts = filter (not . isPrefixOf ("Index {index = " ++ productId ++ ",") ) products
   writeFile "_productDB.dat" (unlines filteredProducts)
   putStrLn "** Produto deletado com sucesso! **"
 
@@ -143,7 +146,7 @@ menuProduct = do
     "3" -> getProductByName
     "4" -> showAllProducts
     -- "5" -> updateProduct
-    -- "6" -> deleteProduct
+    "6" -> deleteProduct
     -- "7" -> alertLowStockProducts
     -- "8" -> alertExpiringProducts
     "0" -> putStrLn "\n<---"
