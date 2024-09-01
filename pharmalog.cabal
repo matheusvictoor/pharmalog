@@ -34,7 +34,7 @@ executable pharmalog
   build-depends:       base >= 4.7 && < 5,
                        directory,
                        time, 
-                       deepseq >= 1.4 && < 1.5, 
+                       deepseq >= 1.4 && < 1.5, filelock
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
