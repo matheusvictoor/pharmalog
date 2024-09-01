@@ -1,5 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.UserService (createUser, getAllUsers, getUserByName, updateUser, deleteUser, assignRoleToUser,specificAdminFunctions, specificManagerFunctions, specificSellerFunctions, menuUser) where
+module Services.UserService (createUser, getAllUsers, getUserById, getUserByName, updateUser, deleteUser, assignRoleToUser,specificAdminFunctions, specificManagerFunctions, specificSellerFunctions, menuUser) where
 
 import Models.User
 import Data.List (find, deleteBy)
@@ -36,6 +36,18 @@ getAllUsers = do
   contents <- readFile "_userDB.dat"
   let users = map (userData . read) (lines contents) :: [User]
   return users
+
+getUserById :: IO ()
+getUserById = do
+  putStrLn "ID do usuário para buscar: "
+  searchId <- readLn
+  contents <- readFile "_userDB.dat"
+  let users = map (read :: String -> Index User) (lines contents)
+  case find (\u -> index u == searchId) users of
+    Just u -> do
+      putStrLn $ "\nInformações do usuário:"
+      printUser u
+    Nothing -> putStrLn "Usuário não encontrado."
 
 -- Busca um usuário pelo nome no arquivo _userDB.dat
 getUserByName :: IO ()
@@ -153,7 +165,7 @@ menuUser = do
 
   case option of
     "1" -> createUser
-    -- "2" -> getUserById
+    "2" -> getUserById
     "3" -> getUserByName
     -- "4" -> getAllUsers
     -- "5" -> updateUser
