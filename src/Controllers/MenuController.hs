@@ -7,51 +7,18 @@ import System.IO (hFlush, stdout)
 
 menu :: IO Int
 menu = do
-  putStrLn "Pharmalog - Seu sistema de controle de farmacia (v1.0)"
+  putStrLn "\nPharmalog - Seu sistema de controle de farmacia (v1.0)"
   
-  putStrLn "\n******************************"
-  putStrLn "\n****** Digite uma Opcao ******"
+  putStrLn "******************************************************"
+  putStrLn "********************** Bem-Vindo *********************\n"
 
-  putStrLn "\n********* USARIO *************"
-  putStrLn "1.   Cadastrar"
-  putStrLn "2.   Remover"
-  putStrLn "3.   Atualizar"
-  putStrLn "4.   Buscar"
-  putStrLn "5.   Buscar Todos os Usuários"
-  putStrLn "6.   Atribuir Função a Usuário"
-  putStrLn "7.   Funções Específicas do Administrador"
-  putStrLn "8.   Funções Específicas do Gerente"
-  putStrLn "9.   Funções Específicas do Vendedor"
-
-  putStrLn "\n********* PRODUTO *************"
-  putStrLn "10.  Cadastrar"
-  putStrLn "11.  Remover"
-  putStrLn "12.  Atualizar"
-  putStrLn "13.  Buscar"
-  putStrLn "14.  Buscar Todos os Produtos"
-  putStrLn "15.  Alertar sobre Baixo Estoque"
-  putStrLn "16.  Alertar sobre Produtos Perto de Vencer"
-
-  putStrLn "\n********* VENDAS **************"
-  putStrLn "17.  Cadastrar"
-  putStrLn "18.  Remover"
-  putStrLn "19.  Atualizar"
-  putStrLn "20.  Buscar"
-  putStrLn "21.  Buscar Todas as Vendas"
-
-  putStrLn "\n********* CLIENTE *************"
-  putStrLn "22.  Cadastrar"
-  putStrLn "23.  Remover"
-  putStrLn "24.  Atualizar"
-  putStrLn "25.  Buscar"
-  putStrLn "26.  Buscar Todos os Clientes"
-
-  putStrLn "\n30.  RELATORIOS *************"
-
-  putStrLn "\n********* CHAT *************"
-  putStrLn "50.  Chat"
-
-  putStrLn "\n0 <- Sair\n"
+  putStrLn "1.   Usuários"
+  putStrLn "2.   Produtos"
+  putStrLn "3.   Vendas"
+  putStrLn "4.   Clientes"
+  putStrLn "5.   Chat"
+  putStrLn "6.   Relatórios"
+  putStrLn "0 <- Sair\n"
 
   putStr ("Escolha uma opção -> ")
 
