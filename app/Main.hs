@@ -6,19 +6,20 @@ import Control.Concurrent (forkIO, newChan, readChan, writeChan, Chan)
 import Controllers.MenuController (menu)
 
 import Services.ChatService (startChat)
-import Services.UserService (createUser, deleteUser, updateUser, getUserByName, getAllUsers)
-import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, alertLowStockProducts, alertExpiringProducts)
--- import Services.ClientService (createClient, deleteClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient)
-import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient)
-import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales)
+import Services.UserService (createUser, getAllUsers, getUserById, getUserByName, updateUser, deleteUser, menuUser)
+import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, showAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct)
+import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient, menuClient)
+import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales, menuSale)
 import Services.RelatorioProduct(relatorioPorPreco, relatorioPorCategoria, relatorioPorEstoque, exibirProdutos, menuRelatorio)
 
 import System.IO (hFlush, stdout)
 import Models.Message (Message(..))
-
+import GHC.IO.Encoding
 
 main :: IO ()
 main = do
+  setLocaleEncoding utf8
+
   let userDB = "_userDB.dat"
   let productDB = "_productDB.dat"
   let customerDB = "_customerDB.dat"
@@ -48,129 +49,15 @@ programLoop :: Chan Message -> IO ()
 programLoop chatChannel = do
   option <- menu
   case option of
-    1 -> createUser >> continue
-    2  -> do
-      putStrLn "Nome do usuário para remover: "
-      name <- getLine
-      deleteUser name
-      continue
-    3  -> do
-      putStrLn "Nome do usuário para atualizar: "
-      name <- getLine
-      updateUser name
-      continue
-    4  -> do
-      putStrLn "Nome do usuário para buscar: "
-      name <- getLine
-      result <- getUserByName name
-      case result of
-        Just user -> print user
-        Nothing -> putStrLn "Usuário não encontrado."
-      continue
-    5  -> do
-      users <- getAllUsers
-      if null users
-        then putStrLn "Nenhum usuário encontrado."
-        else mapM_ print users
-      continue
-
-
-    10  -> createProduct >> continue
-    11  -> do
-      putStrLn "Nome do produto para remover: "
-      productName <- getLine
-      deleteProduct productName
-      continue
-    12  -> do
-      putStrLn "Nome do produto para atualizar: "
-      productName <- getLine
-      updateProduct productName
-      continue
-    13  -> do
-      putStrLn "Nome do produto para buscar: "
-      productName <- getLine
-      result <- getProductById productName
-      case result of
-        Just prod -> print prod
-        Nothing -> putStrLn "Produto não encontrado."
-      continue
-    14 -> do
-      products <- getAllProducts
-      mapM_ print products
-      continue
-    15 -> do
-      putStrLn "Digite o limite de estoque para alerta: "
-      limit <- readLn
-      alertLowStockProducts limit
-      continue
-    16 -> do
-      putStrLn "Digite a quantidade de dias para alerta de vencimento: "
-      daysBefore <- readLn
-      alertExpiringProducts daysBefore
-      continue
-
-    17 -> createSale >> continue
-    18 -> do
-      putStrLn "ID do cliente da venda para remover: "
-      clientId <- readLn
-      deleteSale clientId
-      continue
-    19 -> do
-      putStrLn "ID do cliente da venda para atualizar: "
-      clientId <- readLn
-      updateSale clientId
-      continue
-    20 -> do
-      putStrLn "ID do cliente da venda para buscar: "
-      clientId <- readLn
-      result <- getSaleByClientId clientId
-      case result of
-        Just sale -> print sale
-        Nothing -> putStrLn "Venda não encontrada."
-      continue
-    21 -> do
-      sales <- getAllSales
-      mapM_ print sales
-      continue
-
-    22 -> createClient >> continue
-    23 -> do
-      putStrLn "CPF do cliente para remover: "
-      cpf <- getLine
-      deleteClient cpf
-      continue
-    24 -> do
-      putStrLn "CPF do cliente para atualizar: "
-      cpf <- getLine
-      updateClient cpf
-      continue
-    25 -> do
-      putStrLn "CPF do cliente para buscar: "
-      cpf <- getLine
-      result <- getClientByCpf cpf
-      case result of
-        Just client -> print client
-        Nothing -> putStrLn "Cliente não encontrado."
-      continue
-    26 -> do
-      putStrLn "Buscar todos os clientes: "
-      cpf <- getLine
-      viewClientInfo cpf
-      continue
-    27 -> relatorioPorPreco >> continue
-    28 -> relatorioPorCategoria >> continue
-    29 -> relatorioPorEstoque >> continue
-    30 -> menuRelatorio >> continue
-      
-    50 -> startChat chatChannel >> continue
-
-    0 -> putStrLn "\nEncerrando o programa..."
+    1 -> menuUser >> continue
+    2 -> menuProduct >> continue
+    3 -> menuSale >> continue
+    4 -> menuClient >> continue
+    5 -> startChat chatChannel >> continue
+    6 -> menuRelatorio >> continue
+    0 -> putStrLn "Encerrando o programa..."
     _ -> do
       putStrLn "Opção inválida. Tente novamente."
       programLoop chatChannel
   where
-    continue = do
-      putStr "\nDeseja voltar ao menu? (s/n): "
-      hFlush stdout
-      result <- getLine
-      if result == "s" then programLoop chatChannel else putStrLn "\nEncerrando o programa..."
+    continue = programLoop chatChannel

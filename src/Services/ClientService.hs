@@ -1,19 +1,12 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.ClientService (
-    createClient,
-    getAllClients,
-    getClientByCpf,
-    updateClient,
-    deleteClient,
-    addSaleToClient,
-    viewClientInfo
-) where
+module Services.ClientService (createClient, getAllClients, getClientByCpf, updateClient, deleteClient, addSaleToClient, viewClientInfo, menuClient) where
 
 import Models.Client
 import Models.Product
 import Models.Sale
 import Data.List (find)
 import Data.List (intercalate)
+import System.IO (hFlush, stdout)
 
 -- Função para criar um novo cliente
 createClient :: IO ()
@@ -111,3 +104,30 @@ relatoryProduct (Product nameProduct description category dateManufacture expira
 relatoryProductClient :: Client -> String
 relatoryProductClient cliente = intercalate "\n" (map relatoryProduct produtos)
    where produtos = concatMap products (sales cliente)
+
+menuClient :: IO ()
+menuClient = do
+  putStrLn "\nSelecione uma opção:"
+  putStrLn "1.  Cadastrar um novo cliente"
+  putStrLn "2.  Buscar um cliente por CPF"
+  putStrLn "3.  Buscar todos os clientes"
+  putStrLn "4.  Atualizar um cliente"
+  putStrLn "5.  Deletar um cliente"
+  putStrLn "0 <- Voltar"
+
+  putStr "\nOpção -> "
+  hFlush stdout
+
+  option <- getLine
+
+  case option of
+    "1" -> createClient
+    -- "2" -> getClientByCpf
+    -- "3" -> getUserByName
+    -- "4" -> getAllClients
+    -- "5" -> updateClient
+    -- "6" -> deleteClient
+    -- "7" -> assignRoleToUser
+    "0" -> putStrLn "\n<---"
+    _   -> putStrLn "Opção inválida. Tente novamente." >> menuClient
+  putStrLn ""

@@ -1,2 +1,3 @@
 Client {name = "Jose", age = 21, address = "Pedregal", cpf = "123456", phone = "190", sales = []}
 Client {name = "jose", age = 21, address = "pedregal", cpf = "105345", phone = "89001111", sales = []}
+Client {nameClient = "Joao", age = 21, cpf = "Rua das Flores", address = "123456789", phone = "83-999999999", sales = []}

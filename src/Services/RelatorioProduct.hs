@@ -2,7 +2,7 @@ module Services.RelatorioProduct(relatorioPorPreco, relatorioPorCategoria, relat
 
 import Models.Product
 import Services.ProductService (getAllProducts)
-import Data.Maybe (fromMaybe)
+import System.IO (hFlush, stdout)
 
 relatorioPorPreco :: IO ()
 relatorioPorPreco = do
@@ -33,18 +33,23 @@ relatorioPorEstoque = do
     exibirProdutos filtrados
 
 exibirProdutos :: [Product] -> IO ()
-exibirProdutos [] = putStrLn "Nenhum produto encontrado."
+exibirProdutos [] = putStrLn "\nNenhum produto encontrado :("
 exibirProdutos ps = mapM_ (putStrLn . show) ps
 
 menuRelatorio :: IO ()
 menuRelatorio = do
-    putStrLn "Escolha uma opção de relatório:"
+    putStrLn "\nSelecione uma opção:"
     putStrLn "1. Relatório por faixa de preço"
     putStrLn "2. Relatório por categoria"
     putStrLn "3. Relatório por faixa de estoque"
-    putStrLn "0. Sair"
-    opcao <- getLine
-    case opcao of
+    putStrLn "0 <- Voltar"
+
+    putStr "\nOpção -> "
+    hFlush stdout
+
+    option <- getLine
+
+    case option of
         "1" -> relatorioPorPreco
         "2" -> relatorioPorCategoria
         "3" -> relatorioPorEstoque
