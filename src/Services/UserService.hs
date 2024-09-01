@@ -70,31 +70,43 @@ getUserByName = do
     Nothing -> putStrLn "Usuário não encontrado."
 
 -- Atualiza as informações de um usuário
-updateUser :: String -> IO ()
-updateUser searchName = do
-  -- Ler o conteúdo do arquivo garantindo que seja completamente avaliado
-  contents <- withFile "_userDB.dat" ReadMode $ \handle -> do
-    c <- hGetContents handle
-    c `deepseq` return c  -- Força a avaliação completa do conteúdo
-  
+updateUser :: IO ()
+updateUser = do
+  contents <- readFile "_userDB.dat"
+  putStrLn "ID do usuário para atualizar: "
+  userId <- readLn
   let users = lines contents
-  let updatedUsers = map updateIfFound users
-  
-  -- Escrever o conteúdo atualizado de volta ao arquivo
-  withFile "_userDB.dat" WriteMode $ \handle -> do
-    hPutStr handle (unlines updatedUsers)
-  
-  putStrLn "** Usuário atualizado com sucesso! **"
+  updatedUsers <- mapM (updateIfFound userId) users
+  writeFile "_userDB.dat" (unlines updatedUsers)
+  putStrLn "Usuário atualizado com sucesso! "
   where
-    updateIfFound line =
-      let user = userData (read line :: Index User)
-      in if name user == searchName
-         then show (Index (index (read line :: Index User)) (User
-            { name = searchName
-            , password = "NovaSenha"
-            , role = role user
-            }))
-         else line
+    updateIfFound :: Int -> String -> IO String
+    updateIfFound userId line =
+      let userRecord = read line :: Index User
+          userIndex = index userRecord
+      in if userIndex == userId
+        then do
+          putStrLn "Informe os novos dados do usuário:"
+          putStrLn "Nome:"
+          newName <- getLine
+
+          putStrLn "Senha:"
+          newPassword <- getLine
+
+          putStrLn "Cargo (Administrador | Gerente | Vendedor):"
+          newRole <- readRole
+
+          let updatedUser = User
+                { name = newName
+                , password = newPassword
+                , role = newRole
+                }
+
+          putStrLn "\nUsuário atualizado:"
+          printUser (Index userIndex updatedUser)
+
+          return (show (Index userIndex updatedUser))
+        else return line
 
 deleteUser :: String -> IO ()
 deleteUser searchName = do
@@ -153,7 +165,6 @@ printUser (Index idx user) = do
   putStrLn $ "Cargo: " ++ show (role user)
   putStrLn "----------------------------------------"
 
-
 menuUser :: IO ()
 menuUser = do
   putStrLn "Selecione uma opção:"
@@ -176,7 +187,7 @@ menuUser = do
     "2" -> getUserById
     "3" -> getUserByName
     "4" -> showAllUsers
-    -- "5" -> updateUser
+    "5" -> updateUser
     -- "6" -> deleteUser
     -- "7" -> assignRoleToUser
     "0" -> putStrLn "\n<---"
