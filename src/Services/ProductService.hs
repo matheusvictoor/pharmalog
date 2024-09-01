@@ -153,8 +153,10 @@ alertLowStockProducts = do
         then putStrLn $ "Alerta! Produto: " ++ nameProduct prod ++ " está com estoque baixo. Estoque atual: " ++ show (stock prod)
         else putStrLn $ "Produto: " ++ nameProduct prod ++ " está com estoque suficiente. Estoque atual: " ++ show (stock prod)
 
-alertExpiringProducts :: Int -> IO ()
-alertExpiringProducts daysBefore = do
+alertExpiringProducts :: IO ()
+alertExpiringProducts = do
+  putStrLn "Digite a quantidade de dias para alerta de vencimento: "
+  daysBefore <- readLn
   products <- getAllProducts
   currentTime <- getCurrentTime
   mapM_ (checkProductExpiration currentTime daysBefore) products
@@ -205,7 +207,7 @@ menuProduct = do
     "5" -> updateProduct
     "6" -> deleteProduct
     "7" -> alertLowStockProducts
-    -- "8" -> alertExpiringProducts
+    "8" -> alertExpiringProducts
     "0" -> putStrLn "\n<---"
     _ -> putStrLn "Opção inválida. Tente novamente." >> menuProduct
   putStrLn ""
