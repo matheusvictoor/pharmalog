@@ -52,7 +52,7 @@ getProductByName = do
   putStrLn "Nome do produto para buscar: "
   productNameSearched <- getLine
   contents <- readFile "_productDB.dat"
-  let products = map (productData . read) (lines contents)
+  let products = map (read :: String -> Index Product) (lines contents)
   case find (\p -> nameProduct (productData p) == productNameSearched) products of
     Just p -> do
       putStrLn $ "\nInformações do produto:\n"
@@ -73,27 +73,59 @@ deleteProduct = do
   renameFile tempName "_productDB.dat"
   putStrLn "** Produto deletado com sucesso! **"
 
-updateProduct :: String -> IO ()
-updateProduct searchName = do
+updateProduct :: IO ()
+updateProduct = do
   contents <- readFile "_productDB.dat"
+  putStrLn "ID do produto para atualizar: "
+  productId <- readLn
   let products = lines contents
-  let updatedProducts = map updateIfFound products
+  updatedProducts <- mapM (updateIfFound productId) products
   writeFile "_productDB.dat" (unlines updatedProducts)
   putStrLn "Produto atualizado com sucesso! "
   where
-    updateIfFound line =
-      let prod = productData (read line :: Index Product)  
-      in if nameProduct prod == searchName
-         then show (Index (index (read line :: Index Product)) (Product
-            { nameProduct = searchName
-            , description = "Nova descrição"
-            , category = "Nova categoria"
-            , dateManufacture = dateManufacture prod
-            , expirationDate = expirationDate prod
-            , price = 19.99
-            , stock = 150
-            }))
-         else line
+    updateIfFound :: Int -> String -> IO String
+    updateIfFound productId line =
+      let prod = productData (read line :: Index Product)
+          prodIndex = index (read line :: Index Product)
+      in if prodIndex == productId
+        then do
+          putStrLn "Informe os novos dados do produto:"
+          putStrLn "Nome:"
+          newName <- getLine
+
+          putStrLn "Descrição:"
+          newDescription <- getLine
+
+          putStrLn "Categoria:"
+          newCategory <- getLine
+
+          putStrLn "Data de Fabricação (YYYY-MM-DD):"
+          newManufactureDate <- getLine >>= parseDate
+
+          putStrLn "Data de Expiração (YYYY-MM-DD):"
+          newExpirationDate <- getLine >>= parseDate
+
+          putStrLn "Preço:"
+          newPrice <- readLn
+
+          putStrLn "Estoque:"
+          newStock <- readLn
+
+          let updatedProduct = Product
+                { nameProduct = newName
+                , description = newDescription
+                , category = newCategory
+                , dateManufacture = newManufactureDate
+                , expirationDate = newExpirationDate
+                , price = newPrice
+                , stock = newStock
+                }
+
+          putStrLn "\nProduto atualizado:"
+          printProductWithIndex (Index prodIndex updatedProduct)
+
+          return (show (Index prodIndex updatedProduct))
+        else return line
 
 getAllProducts :: IO [Product]
 getAllProducts = do
@@ -166,7 +198,7 @@ menuProduct = do
     "2" -> getProductById
     "3" -> getProductByName
     "4" -> showAllProducts
-    -- "5" -> updateProduct
+    "5" -> updateProduct
     "6" -> deleteProduct
     -- "7" -> alertLowStockProducts
     -- "8" -> alertExpiringProducts
