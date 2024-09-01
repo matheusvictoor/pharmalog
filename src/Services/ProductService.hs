@@ -6,8 +6,8 @@ import Models.Product
 import Data.List (find, isPrefixOf)
 import Data.Time.Clock()
 import Data.Time ( UTCTime, addUTCTime, getCurrentTime, defaultTimeLocale, parseTimeM )
-import System.IO (hFlush, stdout)
-import System.IO (readFile, writeFile)
+import System.IO (hFlush, stdout, readFile, writeFile, openTempFile, hClose, hGetContents, hPutStr)
+import System.Directory (renameFile, removeFile)
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 
@@ -59,10 +59,14 @@ deleteProduct :: IO ()
 deleteProduct = do
   putStrLn "ID do produto a ser deletado: "
   productId <- getLine
+  (tempName, tempHandle) <- openTempFile "." "temp"
   contents <- readFile "_productDB.dat"
   let products = lines contents
       filteredProducts = filter (not . isPrefixOf ("Index {index = " ++ productId ++ ",") ) products
-  writeFile "_productDB.dat" (unlines filteredProducts)
+  hPutStr tempHandle (unlines filteredProducts)
+  hClose tempHandle
+  removeFile "_productDB.dat"
+  renameFile tempName "_productDB.dat"
   putStrLn "** Produto deletado com sucesso! **"
 
 updateProduct :: String -> IO ()
