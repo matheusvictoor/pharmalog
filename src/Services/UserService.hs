@@ -29,7 +29,9 @@ readRole = do
     "Administrador" -> return Administrador
     "Gerente"       -> return Gerente
     "Vendedor"      -> return Vendedor
-    _               -> fail "Função inválida! Escolha entre: Administrador, Gerente ou Vendedor."
+    _               -> do
+      putStrLn "Cargo inválido! Escolha entre: Administrador, Gerente ou Vendedor."
+      readRole
 
 -- Retorna todos os usuários do arquivo _userDB.dat
 getAllUsers :: IO [User]
@@ -123,23 +125,41 @@ deleteUser = do
   putStrLn "** Usuário deletado com sucesso! **"
 
 -- Função para atribuir uma função a um usuário existente
-assignRoleToUser :: String -> Role -> IO ()
-assignRoleToUser searchName newRole = do
+assignRoleToUser :: IO ()
+assignRoleToUser = do
+  putStrLn "\nID do usuário para atribuir função: "
+  userId <- readLn
+  putStrLn "\nCargo (Administrador | Gerente | Vendedor):"
+  newRole <- readRole
   contents <- readFile "_userDB.dat"
+  
   let users = lines contents
-  let updatedUsers = map assignRoleIfFound users
-  writeFile "_userDB.dat" (unlines updatedUsers)
-  putStrLn "** Função atribuída ao usuário com sucesso! **"
+      userExists = any (isPrefixOf ("Index {index = " ++ show userId ++ ",")) users
+  
+  if not userExists
+    then putStrLn $ "\nErro: Usuário com ID " ++ show userId ++ " não encontrado."
+    else do
+      (tempName, tempHandle) <- openTempFile "." "temp"
+      let updatedUsers = map (assignRoleIfFound userId newRole) users
+      
+      hPutStr tempHandle (unlines updatedUsers)
+      hClose tempHandle
+      removeFile "_userDB.dat"
+      renameFile tempName "_userDB.dat"
+      
+      putStrLn "\n** Função atribuída ao usuário com sucesso! **"
+      
+      let updatedUser = filter (isPrefixOf ("Index {index = " ++ show userId ++ ",")) updatedUsers
+      case updatedUser of
+        [userLine] -> printUser (read userLine :: Index User)
+        _          -> putStrLn "\nErro ao mostrar o usuário atualizado."
   where
-    assignRoleIfFound line =
-      let user = userData (read line :: Index User)
-      in if name user == searchName
-         then show (Index (index (read line :: Index User)) (User
-            { name = name user
-            , password = password user
-            , role = newRole
-            }))
-         else line
+    assignRoleIfFound :: Int -> Role -> String -> String
+    assignRoleIfFound userId newRole line =
+      let userIndex = index (read line :: Index User)
+      in if userIndex == userId
+        then show (Index userIndex (User (name (userData (read line :: Index User))) (password (userData (read line :: Index User))) newRole))
+        else line
 
 -- Funções específicas do Administrador
 specificAdminFunctions :: IO ()
@@ -187,7 +207,7 @@ menuUser = do
     "4" -> showAllUsers
     "5" -> updateUser
     "6" -> deleteUser
-    -- "7" -> assignRoleToUser
+    "7" -> assignRoleToUser
     "0" -> putStrLn "\n<---"
     _   -> putStrLn "Opção inválida. Tente novamente." >> menuUser
   putStrLn ""
