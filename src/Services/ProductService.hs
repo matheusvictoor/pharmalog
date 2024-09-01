@@ -183,7 +183,7 @@ printProductWithIndex (Index idx prod) = do
  
 menuProduct :: IO ()
 menuProduct = do
-  putStrLn "Selecione uma opção:"
+  putStrLn "\nSelecione uma opção:"
   putStrLn "1.  Cadastrar um novo produto"
   putStrLn "2.  Buscar um produto por ID"
   putStrLn "3.  Buscar um produto por name"
