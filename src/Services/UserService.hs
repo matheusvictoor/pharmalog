@@ -1,11 +1,11 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.UserService (createUser, getAllUsers, getUserByName, updateUser, deleteUser, assignRoleToUser, createProductForAdmin, specificAdminFunctions, specificManagerFunctions, specificSellerFunctions) where
+module Services.UserService (createUser, getAllUsers, getUserByName, updateUser, deleteUser, assignRoleToUser,specificAdminFunctions, specificManagerFunctions, specificSellerFunctions, menuUser) where
 
 import Models.User
 import Data.List (find, deleteBy)
 import Data.Time.Clock (UTCTime)
 import Control.DeepSeq (deepseq)
-import System.IO (withFile, IOMode(ReadMode, WriteMode), hGetContents, hPutStr)
+import System.IO (hFlush, stdout, withFile, IOMode(ReadMode, WriteMode), hGetContents, hPutStr)
 
 data Index a = Index { index :: Int, userData :: a } deriving (Show, Read)
 
@@ -14,7 +14,7 @@ createUser :: IO ()
 createUser = do
   !userId <- fmap (length . lines) (readFile "_userDB.dat")
   user <- User
-    <$> (putStrLn "Nome: " >> getLine)
+    <$> (putStrLn "\nNome: " >> getLine)
     <*> (putStrLn "Password: " >> getLine)
     <*> (putStrLn "Função (Administrador | Gerente | Vendedor): " >> readRole)
   appendFile "_userDB.dat" (show (Index (1+userId) user) ++ "\n")
@@ -38,8 +38,17 @@ getAllUsers = do
   return users
 
 -- Busca um usuário pelo nome no arquivo _userDB.dat
-getUserByName :: String -> IO (Maybe User)
-getUserByName searchName = find (\user -> name user == searchName) <$> getAllUsers
+getUserByName :: IO ()
+getUserByName = do
+  putStrLn "Nome do usuário para buscar: "
+  searchName <- getLine
+  contents <- readFile "_userDB.dat"
+  let users = map (read :: String -> Index User) (lines contents)
+  case find (\u -> name (userData u) == searchName) users of
+    Just u -> do
+      putStrLn $ "\nInformações do usuário:"
+      printUser u
+    Nothing -> putStrLn "Usuário não encontrado."
 
 -- Atualiza as informações de um usuário
 updateUser :: String -> IO ()
@@ -68,9 +77,6 @@ updateUser searchName = do
             }))
          else line
 
-
-
-
 deleteUser :: String -> IO ()
 deleteUser searchName = do
   -- Abrindo o arquivo para leitura
@@ -86,10 +92,6 @@ deleteUser searchName = do
     hPutStr handle (unlines filteredUsers)
   
   putStrLn "** Usuário deletado com sucesso! **"
-
--- Função específica para o Administrador criar um produto
-createProductForAdmin :: IO ()
-createProductForAdmin = putStrLn "Função de criação de produto para Administrador a ser implementada"
 
 -- Função para atribuir uma função a um usuário existente
 assignRoleToUser :: String -> Role -> IO ()
@@ -123,3 +125,41 @@ specificManagerFunctions = do
 specificSellerFunctions :: IO ()
 specificSellerFunctions = do
   putStrLn "Vendedor - Funções para alterar status de produto e visualizar relatórios de clientes."
+
+printUser :: Index User -> IO ()
+printUser (Index idx user) = do
+  putStrLn $ "ID: " ++ show idx
+  putStrLn $ "Nome: " ++ name user
+  putStrLn $ "Senha: **********"
+  putStrLn $ "Cargo: " ++ show (role user)
+  putStrLn "----------------------------------------"
+
+
+menuUser :: IO ()
+menuUser = do
+  putStrLn "Selecione uma opção:"
+  putStrLn "1.  Cadastrar um novo usuário"
+  putStrLn "2.  Buscar um usuário por nome"
+  putStrLn "3.  Buscar todos os usuários"
+  putStrLn "4.  Atualizar um usuário"
+  putStrLn "5.  Deletar um usuário"
+  putStrLn "6.  Atribuir cargo a um usuário existente"
+  putStrLn "0 <- Voltar"
+
+  putStr "Opção -> "
+  hFlush stdout
+
+  option <- getLine
+
+  case option of
+    "1" -> createUser
+    -- "2" -> getUserById
+    "3" -> getUserByName
+    -- "4" -> getAllUsers
+    -- "5" -> updateUser
+    -- "6" -> deleteUser
+    -- "7" -> assignRoleToUser
+    "0" -> putStrLn "\n<---"
+    _   -> putStrLn "Opção inválida. Tente novamente." >> menuUser
+  putStrLn ""
+
