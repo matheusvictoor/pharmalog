@@ -185,7 +185,7 @@ printUser (Index idx user) = do
 
 menuUser :: IO ()
 menuUser = do
-  putStrLn "Selecione uma opção:"
+  putStrLn "\nSelecione uma opção:"
   putStrLn "1.  Cadastrar um novo usuário"
   putStrLn "2.  Buscar um usuário por ID"
   putStrLn "3.  Buscar um usuário por nome"
@@ -195,7 +195,7 @@ menuUser = do
   putStrLn "7.  Atribuir cargo a um usuário existente"
   putStrLn "0 <- Voltar"
 
-  putStr "Opção -> "
+  putStr "\nOpção -> "
   hFlush stdout
 
   option <- getLine

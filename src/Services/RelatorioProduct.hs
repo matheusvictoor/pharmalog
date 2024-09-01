@@ -39,7 +39,7 @@ exibirProdutos ps = mapM_ (putStrLn . show) ps
 -- Faltando adicionar a integração com o menuController
 menuRelatorio :: IO ()
 menuRelatorio = do
-    putStrLn "Selecione uma opção:"
+    putStrLn "\nSelecione uma opção:"
     putStrLn "1. Relatório por faixa de preço"
     putStrLn "2. Relatório por categoria"
     putStrLn "3. Relatório por faixa de estoque"
