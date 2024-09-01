@@ -98,9 +98,10 @@ getAllProducts = do
 
 showAllProducts :: IO ()
 showAllProducts = do
-  products <- getAllProducts
+  contents <- readFile "_productDB.dat"
+  let products = map (read :: String -> Index Product) (lines contents)
   putStrLn "\nTodos os produtos cadastrados no sistema\n"
-  mapM_ (putStrLn . show) products
+  mapM_ printProductWithIndex products
 
 
 alertLowStockProducts :: Int -> IO ()
@@ -125,7 +126,19 @@ checkProductExpiration currentTime daysBefore prod = do
   if expirationDate prod <= expiringDate
     then putStrLn $ "Alerta! O produto \"" ++ nameProduct prod ++ "\" está perto de vencer ou já venceu. Data de Expiração: " ++ show (expirationDate prod)
     else putStrLn $ "O produto \"" ++ nameProduct prod ++ "\" está ok. Data de Expiração: " ++ show (expirationDate prod)
-  
+
+printProductWithIndex :: Index Product -> IO ()
+printProductWithIndex (Index idx prod) = do
+  putStrLn $ "ID: " ++ show idx
+  putStrLn $ "Nome: " ++ nameProduct prod
+  putStrLn $ "Descrição: " ++ description prod
+  putStrLn $ "Categoria: " ++ category prod
+  putStrLn $ "Data de Fabricação: " ++ show (dateManufacture prod)
+  putStrLn $ "Data de Expiração: " ++ show (expirationDate prod)
+  putStrLn $ "Preço: " ++ show (price prod)
+  putStrLn $ "Estoque: " ++ show (stock prod)
+  putStrLn "----------------------------------------"
+ 
 menuProduct :: IO ()
 menuProduct = do
   putStrLn "Selecione uma opção:"
