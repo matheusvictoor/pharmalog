@@ -37,6 +37,13 @@ getAllUsers = do
   let users = map (userData . read) (lines contents) :: [User]
   return users
 
+showAllUsers :: IO ()
+showAllUsers = do
+  contents <- readFile "_userDB.dat"
+  let users = map (read :: String -> Index User) (lines contents)
+  putStrLn "\nUsuários cadastrados:"
+  mapM_ printUser users
+
 getUserById :: IO ()
 getUserById = do
   putStrLn "ID do usuário para buscar: "
@@ -151,11 +158,12 @@ menuUser :: IO ()
 menuUser = do
   putStrLn "Selecione uma opção:"
   putStrLn "1.  Cadastrar um novo usuário"
-  putStrLn "2.  Buscar um usuário por nome"
-  putStrLn "3.  Buscar todos os usuários"
-  putStrLn "4.  Atualizar um usuário"
-  putStrLn "5.  Deletar um usuário"
-  putStrLn "6.  Atribuir cargo a um usuário existente"
+  putStrLn "2.  Buscar um usuário por ID"
+  putStrLn "3.  Buscar um usuário por nome"
+  putStrLn "4.  Buscar todos os usuários"
+  putStrLn "5.  Atualizar um usuário"
+  putStrLn "6.  Deletar um usuário"
+  putStrLn "7.  Atribuir cargo a um usuário existente"
   putStrLn "0 <- Voltar"
 
   putStr "Opção -> "
@@ -167,7 +175,7 @@ menuUser = do
     "1" -> createUser
     "2" -> getUserById
     "3" -> getUserByName
-    -- "4" -> getAllUsers
+    "4" -> showAllUsers
     -- "5" -> updateUser
     -- "6" -> deleteUser
     -- "7" -> assignRoleToUser
