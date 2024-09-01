@@ -194,7 +194,7 @@ menuProduct = do
   putStrLn "8.  Alertar sobre Produtos Perto de Vencer"
   putStrLn "0 <- Voltar"
 
-  putStr "Opção -> "
+  putStr "\nOpção -> "
   hFlush stdout
 
   option <- getLine
