@@ -140,12 +140,15 @@ showAllProducts = do
   mapM_ printProductWithIndex products
 
 
-alertLowStockProducts :: Int -> IO ()
-alertLowStockProducts limit = do
+alertLowStockProducts :: IO ()
+alertLowStockProducts = do
+  putStrLn "Digite o limite de estoque para alerta: "
+  limit <- readLn
   products <- getAllProducts
-  mapM_ alertProductStock products
+  mapM_ (alertProductStock limit) products
   where
-    alertProductStock prod =
+    alertProductStock :: Int -> Product -> IO ()
+    alertProductStock limit prod =
       if stock prod < limit
         then putStrLn $ "Alerta! Produto: " ++ nameProduct prod ++ " está com estoque baixo. Estoque atual: " ++ show (stock prod)
         else putStrLn $ "Produto: " ++ nameProduct prod ++ " está com estoque suficiente. Estoque atual: " ++ show (stock prod)
@@ -163,6 +166,7 @@ checkProductExpiration currentTime daysBefore prod = do
     then putStrLn $ "Alerta! O produto \"" ++ nameProduct prod ++ "\" está perto de vencer ou já venceu. Data de Expiração: " ++ show (expirationDate prod)
     else putStrLn $ "O produto \"" ++ nameProduct prod ++ "\" está ok. Data de Expiração: " ++ show (expirationDate prod)
 
+--modelo de prinst para mostrar os produtos em tela
 printProductWithIndex :: Index Product -> IO ()
 printProductWithIndex (Index idx prod) = do
   putStrLn $ "ID: " ++ show idx
@@ -200,7 +204,7 @@ menuProduct = do
     "4" -> showAllProducts
     "5" -> updateProduct
     "6" -> deleteProduct
-    -- "7" -> alertLowStockProducts
+    "7" -> alertLowStockProducts
     -- "8" -> alertExpiringProducts
     "0" -> putStrLn "\n<---"
     _ -> putStrLn "Opção inválida. Tente novamente." >> menuProduct
