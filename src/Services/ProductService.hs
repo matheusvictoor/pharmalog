@@ -1,6 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 
-module Services.ProductService ( createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
+module Services.ProductService ( createProduct, getProductById, deleteProduct, updateProduct, getAllProducts, showAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct) where
 
 import Models.Product
 import Data.List (find)
@@ -39,9 +39,7 @@ getProductById = do
   putStrLn "ID do produto para buscar: "
   productId <- readLn
   contents <- readFile "_productDB.dat"
-
   let products = map (read :: String -> Index Product) (lines contents)
-
   case find (\p -> index p == productId) products of
     Just p -> putStrLn $ "Informações do produto:\n" ++ show p
     Nothing -> putStrLn "Produto não encontrado."
@@ -51,9 +49,7 @@ getProductByName = do
   putStrLn "Nome do produto para buscar: "
   productNameSearched <- getLine
   contents <- readFile "_productDB.dat"
-
   let products = map (productData . read) (lines contents)
-
   case find (\p -> nameProduct p == productNameSearched) products of
     Just p -> putStrLn $ "Informações do produto:\n" ++ show p
     Nothing -> putStrLn "Produto não encontrado."
@@ -92,6 +88,13 @@ getAllProducts :: IO [Product]
 getAllProducts = do
   contents <- readFile "_productDB.dat"
   return $ map (productData . read) (lines contents)
+
+showAllProducts :: IO ()
+showAllProducts = do
+  products <- getAllProducts
+  putStrLn "\nTodos os produtos cadastrados no sistema\n"
+  mapM_ (putStrLn . show) products
+
 
 alertLowStockProducts :: Int -> IO ()
 alertLowStockProducts limit = do
@@ -138,11 +141,11 @@ menuProduct = do
     "1" -> createProduct
     "2" -> getProductById
     "3" -> getProductByName
-    -- "4" -> getAllProducts
+    "4" -> showAllProducts
     -- "5" -> updateProduct
     -- "6" -> deleteProduct
     -- "7" -> alertLowStockProducts
     -- "8" -> alertExpiringProducts
-    "0" -> putStrLn "<---"
+    "0" -> putStrLn "\n<---"
     _ -> putStrLn "Opção inválida. Tente novamente." >> menuProduct
   putStrLn ""
