@@ -5,6 +5,7 @@ import Services.SaleService ()
 import Services.UserService ()
 import System.IO (hFlush, stdout)
 
+
 menu :: IO Int
 menu = do
   putStrLn "\nPharmalog - Seu sistema de controle de farmacia (v1.0)"
