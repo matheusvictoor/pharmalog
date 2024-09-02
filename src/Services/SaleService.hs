@@ -1,8 +1,8 @@
 {-# LANGUAGE BangPatterns #-}
-module Services.SaleService (createSale, getAllSales, getSaleByClientId, updateSale, deleteSale, menuSale) where
+module Services.SaleService (createSale, getAllSales, getSaleByClientCpf, updateSale, deleteSale, menuSale) where
 
 import Models.Sale
-import Data.List (find, deleteBy)
+import Data.List (find)
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, parseTimeM)
 import System.IO (hFlush, stdout)
@@ -21,15 +21,21 @@ createSale = do
   appendFile "_saleDB.dat" (show (Index (1 + saleId) sale) ++ "\n")
   putStrLn "** Venda registrada com sucesso! **"
 
-getAllSales :: IO [Sale]
+getAllSales :: IO ()
 getAllSales = do
   contents <- readFile "_saleDB.dat"
-  return $ map (saleData . read) (lines contents)
+  let sales = map (read :: String -> Index Sale) (lines contents)
+  mapM_ printSale sales
 
-getSaleByClientId :: Int -> IO (Maybe Sale)
-getSaleByClientId searchClientId = do
-  sales <- getAllSales
-  return $ find (\sale -> clientId sale == searchClientId) sales
+getSaleByClientCpf :: IO ()
+getSaleByClientCpf = do
+  putStrLn "CPF do Cliente: "
+  searchClientCpf <- readLn
+  contents <- readFile "_saleDB.dat"
+  let sales = map (read :: String -> Index Sale) (lines contents)
+  case find (\(Index _ sale) -> clientId sale == searchClientCpf) sales of
+    Just s  -> printSale s
+    Nothing -> putStrLn "Venda não encontrada."
 
 updateSale :: Int -> IO ()
 updateSale searchClientId = do
@@ -65,6 +71,16 @@ parseDate str =
     Just date -> return date
     Nothing   -> fail "Formato de data inválido. Use o formato YYYY-MM-DD."
 
+printSale :: Index Sale -> IO ()
+printSale (Index idx sale) = do
+  putStrLn $ "ID da Venda: " ++ show idx
+  putStrLn $ "CPF do Cliente: " ++ show (clientId sale)
+  putStrLn $ "ID do Vendedor: " ++ show (sellerId sale)
+  putStrLn $ "Data da Venda: " ++ show (dateSale sale)
+  putStrLn $ "Valor Total: " ++ show (totalSale sale)
+  putStrLn $ "Produtos: " ++ show (products sale)
+  putStrLn "----------------------------------------"
+
 menuSale :: IO ()
 menuSale = do
   putStrLn "\nSelecione uma opção:"
@@ -80,16 +96,8 @@ menuSale = do
 
   case option of
     "1" -> createSale
-    "2" -> do
-        putStrLn "CPF do Cliente: "
-        clientId <- readLn
-        sale <- getSaleByClientId clientId
-        case sale of
-            Just s  -> print s
-            Nothing -> putStrLn "Cliente não encontrado."
-    "3" -> do
-        sales <- getAllSales
-        mapM_ print sales
+    "2" -> getSaleByClientCpf
+    "3" -> getAllSales
     "0" -> putStrLn "\n<---"
     _   -> putStrLn "Opção inválida. Tente novamente." >> menuSale
 

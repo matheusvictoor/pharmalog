@@ -1,1 +1,3 @@
 Index {index = 1, saleData = Sale {clientId = 2, sellerId = 2, dateSale = 2020-12-12 00:00:00 UTC, totalSale = 9.99, products = []}}
+Index {index = 2, saleData = Sale {clientId = 1234567, sellerId = 1, dateSale = 2023-12-12 00:00:00 UTC, totalSale = 3.99, products = []}}
+Index {index = 3, saleData = Sale {clientId = 1234567, sellerId = 1, dateSale = 2020-12-12 00:00:00 UTC, totalSale = 3.99, products = []}}

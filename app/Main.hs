@@ -9,7 +9,7 @@ import Services.ChatService (startChat)
 import Services.UserService (createUser, getAllUsers, getUserById, getUserByName, updateUser, deleteUser, menuUser)
 import Services.ProductService (createProduct, deleteProduct, updateProduct, getProductById, getAllProducts, showAllProducts, alertLowStockProducts, alertExpiringProducts, menuProduct)
 import Services.ClientService (createClient, deleteClient, updateClient, getClientByCpf, getAllClients, viewClientInfo, addSaleToClient, menuClient)
-import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientId, getAllSales, menuSale)
+import Services.SaleService (createSale, deleteSale, updateSale, getSaleByClientCpf, getAllSales, menuSale)
 import Services.RelatorioProduct(relatorioPorPreco, relatorioPorCategoria, relatorioPorEstoque, exibirProdutos, menuRelatorio)
 
 import System.IO (hFlush, stdout)
