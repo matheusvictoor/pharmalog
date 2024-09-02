@@ -1,1 +1,2 @@
-Index {index = 2, userData = User {name = "Matheus", password = "123", role = Gerente}}
+Index {index = 1, userData = User {name = "Matheus", cpf = "123", password = "12345", role = Vendedor}}
+Index {index = 2, userData = User {name = "Matheus", cpf = "123456", password = "1234", role = Vendedor}}
