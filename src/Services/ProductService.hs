@@ -11,22 +11,33 @@ import System.Directory (renameFile, removeFile)
 
 data Index a = Index { index :: Int, productData :: a } deriving (Show, Read)
 
--- Função para criar um novo produto
+productExistName :: String -> IO Bool
+productExistName productName = do
+  contents <- readFile "_productDB.dat"
+  let products = map (read :: String -> Index Product) (lines contents)
+  return $ any (\p -> nameProduct (productData p) == productName) products
+
 createProduct :: IO ()
 createProduct = do
-  !productId <- fmap (length . lines) (readFile "_productDB.dat")
-  newProduct <- Product
-    <$> (putStrLn "Nome: " >> getLine)
-    <*> (putStrLn "Descrição: " >> getLine)
-    <*> (putStrLn "Categoria: " >> getLine)
-    <*> (putStrLn "Data de Fabricação (YYYY-MM-DD): " >> getLine >>= parseDate)
-    <*> (putStrLn "Data de Expiração (YYYY-MM-DD): " >> getLine >>= parseDate)
-    <*> (putStrLn "Preço (9.99): " >> readLn)
-    <*> (putStrLn "Estoque: " >> readLn)
-  
-  -- Salvar o novo produto no arquivo _productDB.dat
-  appendFile "_productDB.dat" (show (Index (1+productId) newProduct) ++ "\n")
-  putStrLn "** Produto cadastrado com sucesso! **"
+  putStrLn "Nome: "
+  productName <- getLine
+
+  exists <- productExistName productName
+  if exists
+    then putStrLn "\n** Produto já existe **"
+    else do
+      !productId <- fmap (length . lines) (readFile "_productDB.dat")
+      newProduct <- Product
+        <$> return productName
+        <*> (putStrLn "Descrição: " >> getLine)
+        <*> (putStrLn "Categoria: " >> getLine)
+        <*> (putStrLn "Data de Fabricação (YYYY-MM-DD): " >> getLine >>= parseDate)
+        <*> (putStrLn "Data de Expiração (YYYY-MM-DD): " >> getLine >>= parseDate)
+        <*> (putStrLn "Preço (9.99): " >> readLn)
+        <*> (putStrLn "Estoque: " >> readLn)
+
+      appendFile "_productDB.dat" (show (Index (1 + productId) newProduct) ++ "\n")
+      putStrLn "** Produto cadastrado com sucesso! **"
 
 -- A função parseDate, que faz a conversão da string para a data:
 parseDate :: String -> IO UTCTime
