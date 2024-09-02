@@ -36,7 +36,6 @@ exibirProdutos :: [Product] -> IO ()
 exibirProdutos [] = putStrLn "\nNenhum produto encontrado :("
 exibirProdutos ps = mapM_ (putStrLn . show) ps
 
--- Faltando adicionar a integração com o menuController
 menuRelatorio :: IO ()
 menuRelatorio = do
     putStrLn "\nSelecione uma opção:"
