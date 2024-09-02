@@ -1,8 +1,9 @@
-module Services.RelatorioProduct(relatorioPorPreco, relatorioPorCategoria, relatorioPorEstoque, exibirProdutos, menuRelatorio) where
+module Services.RelatorioProduct (relatorioPorPreco, relatorioPorCategoria, relatorioPorEstoque, exibirProdutos, menuRelatorio) where
 
 import Models.Product
 import Services.ProductService (getAllProducts)
 import System.IO (hFlush, stdout)
+import Data.Time.Format (formatTime, defaultTimeLocale)
 
 relatorioPorPreco :: IO ()
 relatorioPorPreco = do
@@ -34,7 +35,17 @@ relatorioPorEstoque = do
 
 exibirProdutos :: [Product] -> IO ()
 exibirProdutos [] = putStrLn "\nNenhum produto encontrado :("
-exibirProdutos ps = mapM_ (putStrLn . show) ps
+exibirProdutos ps = mapM_ (putStrLn . formatProduct) ps
+  where
+    formatProduct p = unlines [
+        "Nome: " ++ nameProduct p,
+        "Descrição: " ++ description p,
+        "Categoria: " ++ category p,
+        "Data de fabricação: " ++ formatTime defaultTimeLocale "%Y-%m-%d" (dateManufacture p),
+        "Data de vencimento: " ++ formatTime defaultTimeLocale "%Y-%m-%d" (expirationDate p),
+        "Preço: " ++ show (price p),
+        "Estoque: " ++ show (stock p)
+      ]
 
 menuRelatorio :: IO ()
 menuRelatorio = do
