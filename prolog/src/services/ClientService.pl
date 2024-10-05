@@ -9,6 +9,9 @@
     menu_client/0
 ]).
 
+:- use_module('../models/Client').  
+:- use_module('../models/Product').
+:- use_module('../models/Sale').
 :- use_module(library(readutil)).
 :- use_module(library(lists)).
 :- use_module(client).  

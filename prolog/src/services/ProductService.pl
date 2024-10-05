@@ -92,8 +92,6 @@ menu_option("7") :- alert_expiring_products.
 menu_option("0") :- write('\n<---\n').
 menu_option(_) :- write('Opção inválida. Tente novamente.\n'), menu_product.
 
-
-
 product_exist_name(Name, Exists) :-
     read_products(Products),
     member(product(Name, _, _, _, _, _, _), Products), !,
