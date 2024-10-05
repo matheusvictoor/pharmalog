@@ -1,21 +1,8 @@
 :- consult('../models/user.pl').
+:- consult('../assets/user_layout.pl').
 
 menu_user :-
-  writeln("\n******************************************************"),
-  writeln("*                                                    *"),
-  writeln("*                Selecione uma opção                 *"),
-  writeln("*                                                    *"),
-  writeln("******************************************************"),
-  writeln("*                                                    *"),
-  writeln("*                1 - Cadastrar um novo usuário       *"),
-  writeln("*                2 - Buscar um usuário por CPF       *"),
-  writeln("*                3 - Listar todos os usuários        *"),
-  writeln("*                4 - Atualizar um usuário            *"),
-  writeln("*                5 - Deletar um usuário              *"),
-  writeln("*                                                    *"),
-  writeln("*                0 - Voltar                          *"),
-  writeln("*                                                    *"),
-  writeln("******************************************************"),
+  user_layout,
   nl,
   write("Escolha uma opção: "),
   read(Option), nl,
