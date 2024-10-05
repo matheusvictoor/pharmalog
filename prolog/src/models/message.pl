@@ -1,1 +1,0 @@
-:- dynamic message/3.
