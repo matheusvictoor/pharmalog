@@ -14,7 +14,7 @@
 :- use_module(library(lists)).
 :- use_module(library(time)).
 
-:- use_module(product).  
+:- use_module('../models/Product').  
 
 create_product :-
     write('Nome: '), flush_output, read_line_to_string(user_input, ProductName),
@@ -78,8 +78,21 @@ alert_expiring_products :-
     maplist(check_product_expiration(CurrentTime, DaysBefore), Products).
 
 menu_product :-
-    write('\nSelecione uma opção:\n1.  Cadastrar um novo produto\n2.  Buscar um produto por ID\n3.  Buscar todos os produtos\n4.  Atualizar um produto\n5.  Remover um produto\n6.  Alertar sobre Baixo Estoque\n7.  Alertar sobre Produtos Perto de Vencer\n0 <- Voltar\n'),
-    write('\nOpção -> '), flush_output, read_line_to_string(user_input, Option),
+    writeln("\n***********************************************"),
+    writeln("*           MENU DE PRODUTOS                  *"),
+    writeln("***********************************************"),
+    writeln("* 1. Cadastrar um novo produto                *"),
+    writeln("* 2. Buscar um produto por ID                 *"),
+    writeln("* 3. Buscar todos os produtos                 *"),
+    writeln("* 4. Atualizar um produto                     *"),
+    writeln("* 5. Remover um produto                       *"),
+    writeln("* 6. Alertar sobre Baixo Estoque              *"),
+    writeln("* 7. Alertar sobre Produtos Perto de Vencer   *"),
+    writeln("* 0 <- Voltar                                *"),
+    writeln("***********************************************"),
+    write("\nOpção -> "), 
+    flush_output, 
+    read_line_to_string(user_input, Option),
     menu_option(Option).
 
 menu_option("1") :- create_product.
@@ -89,8 +102,8 @@ menu_option("4") :- update_product.
 menu_option("5") :- delete_product.
 menu_option("6") :- alert_low_stock_products.
 menu_option("7") :- alert_expiring_products.
-menu_option("0") :- write('\n<---\n').
-menu_option(_) :- write('Opção inválida. Tente novamente.\n'), menu_product.
+menu_option("0") :- writeln('\n<--- Voltando ao Menu Principal').
+menu_option(_) :- writeln('Opção inválida. Tente novamente.\n'), menu_product.
 
 product_exist_name(Name, Exists) :-
     read_products(Products),
