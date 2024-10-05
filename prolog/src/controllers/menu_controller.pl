@@ -1,24 +1,10 @@
 :- consult('../services/user_service.pl').
+:- consult('../services/chat_service.pl').
+:- consult('../assets/menu_layout.pl').
+:- load_chat.
 
 menu :-
-  writeln("\n******************************************************"),
-  writeln("*                                                    *"),
-  writeln("*           Pharmalog - Controle de Farmácia         *"),
-  writeln("*                   Versão 1.0 (PROLOG)              *"),
-  writeln("*                                                    *"),
-  writeln("******************************************************"),
-  writeln("********************** Bem-Vindo *********************"),
-  writeln("*                                                    *"),
-  writeln("*                 🌟 1. Usuários                     *"),
-  writeln("*                 📦 2. Produtos                     *"),
-  writeln("*                 💰 3. Vendas                       *"),
-  writeln("*                 👥 4. Clientes                     *"),
-  writeln("*                 💬 5. Chat                         *"),
-  writeln("*                 📊 6. Relatórios de Produtos       *"),
-  writeln("*                                                    *"),
-  writeln("*                 ❌ 0 <- Sair                       *"),
-  writeln("*                                                    *"),
-  writeln("******************************************************"),
+  menu_layout,
   nl,
   write("Escolha uma opção: "),
   read(Option),
@@ -28,8 +14,12 @@ handle_menu_option(1) :-
   menu_user,
   menu.
 
+handle_menu_option(5) :-
+  start_chat,
+  menu.
+
 handle_menu_option(0) :- 
-  writeln("Encerrando o programa...").
+  writeln("Encerrando o programa..."), halt.
 
 handle_menu_option(_) :- 
   writeln("Opção inválida. Tente novamente."),
