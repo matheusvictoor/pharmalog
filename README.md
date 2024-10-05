@@ -24,6 +24,34 @@ Este projeto é um sistema de farmácia desenvolvido como parte da disciplina de
 | 9  | **Chat com Farmacêutico/Vendedor** | <ul><li>Interação em tempo real com profissionais da farmácia para obter assistência personalizada.</li><li>Consultas sobre preço, categoria, estoque de produtos, informações sobre o horário de funcionamento da farmácia, etc.</li></ul> |
 | 10 | **Consultas por Cliente, Fabricante, Produto** | <ul><li>Consultas por Cliente: Critérios de pesquisa (nome, ID, histórico de compras), resultados detalhados (perfil, histórico de compras, total gasto).</li><li>Consultas por Fabricante: Critérios de pesquisa (nome, ID, tipo de produto), resultados detalhados (informações do fabricante, lista de produtos, histórico de transações).</li><li>Consultas por Produto: Critérios de pesquisa (nome, categoria), resultados detalhados (detalhes do produto, quantidade em estoque, vendas totais).</li></ul> |
 
+## Como Executar o Projeto
+
+Para executar este projeto, siga os passos abaixo:
+
+1. **Instale o Haskell e o Stack:**
+   - Certifique-se de que você tenha o Haskell e o Stack instalados na sua máquina.
+   - Você pode instalar o Stack seguindo as instruções em: [Instalação do Stack](https://docs.haskellstack.org/en/stable/install_and_upgrade/)
+
+2. **Clone o Repositório:**
+   ```bash
+   git clone https://github.com/matheusvictoor/pharmalog.git
+   cd pharmalog
+   ```
+
+3. **Compile o Projeto:**
+   - Dentro do diretório do projeto, execute o comando abaixo para compilar:
+   ```bash
+   stack build
+   ```
+
+4. **Execute o Projeto:**
+   - Após a compilação, você pode executar o projeto usando:
+   ```bash
+   stack exec pharmalog
+   ```
+
+Pronto! Agora você pode utilizar o sistema Pharmalog.
+
 ## Estrutura do Projeto
 
 A estrutura do projeto é organizada da seguinte forma:
@@ -47,16 +75,18 @@ A estrutura do projeto é organizada da seguinte forma:
 |   |   ├── ProductService.hs
 |   |   ├── SaleService.hs
 |   |   ├── UserService.hs
+|   |   ├── SelleService.hs
+|   |   ├── RelatorioService.hs
 |   |   └── ChatService.hs
+├── _chatDB.dat
 ├── _customerDB.dat
 ├── _productDB.dat
 ├── _saleDB.dat
 ├── _userDB.dat
 ├── pharmlog.cabal
 ├── Setup.hs
-├── Setup.hs
+├── README.ms
 └── stack.yaml
-
 
 Autores
  Arthur Fernandes Falcão de Araújo - ArthurFernandes8
