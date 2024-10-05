@@ -1,5 +1,6 @@
 :- consult('../services/user_service.pl').
 :- consult('../services/chat_service.pl').
+:- consult('../services/product_service.pl').
 :- consult('../assets/menu_layout.pl').
 :- load_chat.
 
@@ -12,6 +13,10 @@ menu :-
 
 handle_menu_option(1) :- 
   menu_user,
+  menu.
+
+handle_menu_option(2) :-
+  menu_product,
   menu.
 
 handle_menu_option(5) :-
