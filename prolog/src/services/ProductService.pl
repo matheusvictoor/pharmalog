@@ -21,7 +21,7 @@ create_product :-
     product_exist_name(ProductName, Exists),
     (   Exists -> 
         write('\n** Produto já existe **'), nl
-    ;   open('_productDB.dat', append, Stream),
+    ;   open('productDB.pl', append, Stream),
         write('Descrição: '), flush_output, read_line_to_string(user_input, Description),
         write('Categoria: '), flush_output, read_line_to_string(user_input, Category),
         write('Data de Fabricação (YYYY-MM-DD): '), flush_output, read_line_to_string(user_input, ManufactureDateStr),
@@ -122,12 +122,12 @@ parse_date(DateStr, Date) :-
     parse_time(DateStr, '%Y-%m-%d', Date).
 
 read_products(Products) :-
-    open('_productDB.dat', read, Stream),
+    open('productDB.pl', read, Stream),
     read_terms(Stream, Products),
     close(Stream).
 
 write_products(Products) :-
-    open('_productDB.dat', write, Stream),
+    open('productDB.pl', write, Stream),
     maplist(write_term(Stream), Products),
     close(Stream).
 

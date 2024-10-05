@@ -22,13 +22,13 @@ create_client :-
     write('CPF: '), flush_output, read_line_to_string(user_input, CPF),
     write('Telefone: '), flush_output, read_line_to_string(user_input, Phone),
     Client = client(Name, Age, CPF, Address, Phone, []),
-    open('_customerDB.dat', append, Stream),
+    open('customerDB.pl', append, Stream),
     write(Stream, Client), write(Stream, '.'), nl(Stream),
     close(Stream),
     write('** Cliente cadastrado com sucesso! **'), nl.
 
 get_all_clients(Clients) :-
-    open('_customerDB.dat', read, Stream),
+    open('customerDB.pl', read, Stream),
     read_terms(Stream, Clients),
     close(Stream).
 
@@ -44,7 +44,7 @@ view_client_info(CPF) :-
 update_client(CPF) :-
     get_all_clients(Clients),
     maplist(update_if_found(CPF), Clients, UpdatedClients),
-    open('_customerDB.dat', write, Stream),
+    open('customerDB.pl', write, Stream),
     write_terms(Stream, UpdatedClients),
     close(Stream),
     write('** Cliente atualizado com sucesso! **'), nl.
@@ -61,7 +61,7 @@ update_if_found(_, Client, Client).
 delete_client(CPF) :-
     get_all_clients(Clients),
     exclude(client_cpf_match(CPF), Clients, FilteredClients),
-    open('_customerDB.dat', write, Stream),
+    open('customerDB.pl', write, Stream),
     write_terms(Stream, FilteredClients),
     close(Stream),
     write('** Cliente deletado com sucesso! **'), nl.
@@ -71,7 +71,7 @@ client_cpf_match(CPF, client(_, _, CPF, _, _, _)).
 add_sale_to_client(CPF, NewSale) :-
     get_all_clients(Clients),
     maplist(add_sale(CPF, NewSale), Clients, UpdatedClients),
-    open('_customerDB.dat', write, Stream),
+    open('customerDB.pl', write, Stream),
     write_terms(Stream, UpdatedClients),
     close(Stream),
     write('** Venda adicionada ao cliente com sucesso! **'), nl.
