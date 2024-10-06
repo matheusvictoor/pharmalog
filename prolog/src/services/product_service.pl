@@ -1,5 +1,6 @@
 :- consult('../models/product.pl').
 :- consult('../assets/product_layout.pl').
+:- consult('user_service.pl').
 
 menu_product :-
     product_layout,
@@ -10,6 +11,7 @@ menu_product :-
 
 handle_product_option(1) :-
     create_product,
+    aguardar_enter,
     menu_product.
 
 handle_product_option(2) :-
@@ -88,14 +90,15 @@ create_product :-
         format("\n** Produto cadastrado com sucesso! ID: ~w **\n", [ID]), nl
     ).
 
-
 valid_date(DateStr) :-
     split_string(DateStr, "-", "", [Year, Month, Day]),
     string_length(Year, 4), string_length(Month, 2), string_length(Day, 2),
-    catch(number_string(_, Year), _, fail),
-    catch(number_string(_, Month), _, fail),
-    catch(number_string(_, Day), _, fail).
-
+    atom_number(Year, YearNum),
+    atom_number(Month, MonthNum),
+    atom_number(Day, DayNum),
+    MonthNum >= 1, MonthNum =< 12,
+    DayNum >= 1, DayNum =< 31,
+    YearNum >= 1900.
 
 get_product_by_id :-
     writeln('ID do produto para buscar: '), read(Id),
