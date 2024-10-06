@@ -10,18 +10,24 @@ menu_user :-
 
 handle_user_option(1) :-
   writeln("\nCPF: "), read(CPF),
-  ( user_exists_cpf(CPF) -> 
-    exibir_mensagem_formatada("CPF já cadastrado!"),
-    aguardar_enter,
-    menu_user
-  ;
-    writeln("Nome: "), read(Name),
-    writeln("Senha: "), read(Password),
-    writeln("Função (administrador | gerente | vendedor): "), read(Role),
-    create_user(Name, CPF, Password, Role),
-    exibir_mensagem_formatada('✓ Usuário cadastrado com sucesso!'),
-    aguardar_enter,
-    menu_user
+  ( validar_cpf(CPF) ->  % Valida se o CPF é válido
+    ( user_exists_cpf(CPF) -> 
+      exibir_mensagem_formatada("CPF já cadastrado!"),
+      aguardar_enter,
+      menu_user
+    ;
+      writeln("Nome: "), read(Name),
+      writeln("Senha: "), read(Password),
+      writeln("Função (administrador | gerente | vendedor): "), read(Role),
+      create_user(Name, CPF, Password, Role),
+      exibir_mensagem_formatada('✓ Usuário cadastrado com sucesso!'),
+      aguardar_enter,
+      menu_user
+    )
+;
+  exibir_mensagem_formatada('✗ CPF inválido! Deve conter apenas números e ter 11 dígitos.'),
+  aguardar_enter,
+  menu_user
   ).
 
 handle_user_option(2) :-
@@ -92,3 +98,8 @@ aguardar_enter :-
     writeln("\nPressione ENTER para continuar..."),
     get_char(_),
     get_char(_).
+
+validar_cpf(CPF) :-
+    atom_length(CPF, 11),
+    atom_chars(CPF, Chars),
+    maplist(char_type(digit), Chars).
