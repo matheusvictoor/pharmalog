@@ -1,147 +1,126 @@
-:- module(product_service, [
-    create_product/0, 
-    get_product_by_id/0, 
-    delete_product/0, 
-    update_product/0, 
-    get_all_products/1, 
-    show_all_products/0, 
-    alert_low_stock_products/0, 
-    alert_expiring_products/0, 
-    menu_product/0
-]).
-
-:- use_module(library(readutil)).
-:- use_module(library(lists)).
-:- use_module(library(time)).
-
-:- use_module('../models/Product').  
-
-create_product :-
-    write('Nome: '), flush_output, read_line_to_string(user_input, ProductName),
-    product_exist_name(ProductName, Exists),
-    (   Exists -> 
-        write('\n** Produto já existe **'), nl
-    ;   open('productDB.pl', append, Stream),
-        write('Descrição: '), flush_output, read_line_to_string(user_input, Description),
-        write('Categoria: '), flush_output, read_line_to_string(user_input, Category),
-        write('Data de Fabricação (YYYY-MM-DD): '), flush_output, read_line_to_string(user_input, ManufactureDateStr),
-        parse_date(ManufactureDateStr, ManufactureDate),
-        write('Data de Expiração (YYYY-MM-DD): '), flush_output, read_line_to_string(user_input, ExpirationDateStr),
-        parse_date(ExpirationDateStr, ExpirationDate),
-        write('Preço: '), flush_output, read_line_to_string(user_input, PriceStr), number_string(Price, PriceStr),
-        write('Estoque: '), flush_output, read_line_to_string(user_input, StockStr), number_string(Stock, StockStr),
-        write(Stream, product(ProductName, Description, Category, ManufactureDate, ExpirationDate, Price, Stock)), write(Stream, '.'), nl(Stream),
-        close(Stream),
-        write('** Produto cadastrado com sucesso! **'), nl).
-
-get_product_by_id :-
-    write('ID do produto para buscar: '), flush_output, read_line_to_string(user_input, IdStr), number_string(ProductId, IdStr),
-    read_products(Products),
-    (   find_product_by_id(ProductId, Products, Product) -> 
-        print_product(Product)
-    ;   write('Produto não encontrado.'), nl).
-
-delete_product :-
-    write('ID do produto a ser deletado: '), flush_output, read_line_to_string(user_input, IdStr), number_string(ProductId, IdStr),
-    read_products(Products),
-    exclude(product_id_match(ProductId), Products, FilteredProducts),
-    write_products(FilteredProducts),
-    write('** Produto deletado com sucesso! **'), nl.
-
-update_product :-
-    write('ID do produto para atualizar: '), flush_output, read_line_to_string(user_input, IdStr), number_string(ProductId, IdStr),
-    read_products(Products),
-    (   find_product_by_id(ProductId, Products, Product) -> 
-        update_product_details(ProductId, UpdatedProduct),
-        update_product_in_list(Products, ProductId, UpdatedProduct, UpdatedProducts),
-        write_products(UpdatedProducts),
-        write('Produto atualizado com sucesso!'), nl
-    ;   write('Produto não encontrado.'), nl).
-
-get_all_products(Products) :-
-    read_products(Products).
-
-show_all_products :-
-    read_products(Products),
-    write('\nTodos os produtos cadastrados no sistema\n'), nl,
-    maplist(print_product, Products).
-
-alert_low_stock_products :-
-    write('Digite o limite de estoque para alerta: '), flush_output, read_line_to_string(user_input, LimitStr), number_string(Limit, LimitStr),
-    read_products(Products),
-    maplist(alert_product_stock(Limit), Products).
-
-alert_expiring_products :-
-    write('Digite a quantidade de dias para alerta de vencimento: '), flush_output, read_line_to_string(user_input, DaysStr), number_string(DaysBefore, DaysStr),
-    get_time(CurrentTime),
-    read_products(Products),
-    maplist(check_product_expiration(CurrentTime, DaysBefore), Products).
+:- consult('../models/product.pl').
+:- consult('../assets/product_layout.pl').
 
 menu_product :-
-    writeln("\n***********************************************"),
-    writeln("*           MENU DE PRODUTOS                  *"),
-    writeln("***********************************************"),
-    writeln("* 1. Cadastrar um novo produto                *"),
-    writeln("* 2. Buscar um produto por ID                 *"),
-    writeln("* 3. Buscar todos os produtos                 *"),
-    writeln("* 4. Atualizar um produto                     *"),
-    writeln("* 5. Remover um produto                       *"),
-    writeln("* 6. Alertar sobre Baixo Estoque              *"),
-    writeln("* 7. Alertar sobre Produtos Perto de Vencer   *"),
-    writeln("* 0 <- Voltar                                *"),
-    writeln("***********************************************"),
-    write("\nOpção -> "), 
-    flush_output, 
-    read_line_to_string(user_input, Option),
-    menu_option(Option).
+    product_layout,
+    nl,
+    write("Escolha uma opção: "),
+    read(Option), nl,
+    handle_product_option(Option).
 
-menu_option("1") :- create_product.
-menu_option("2") :- get_product_by_id.
-menu_option("3") :- show_all_products.
-menu_option("4") :- update_product.
-menu_option("5") :- delete_product.
-menu_option("6") :- alert_low_stock_products.
-menu_option("7") :- alert_expiring_products.
-menu_option("0") :- writeln('\n<--- Voltando ao Menu Principal').
-menu_option(_) :- writeln('Opção inválida. Tente novamente.\n'), menu_product.
+handle_product_option(1) :-
+    create_product,
+    menu_product.
 
-product_exist_name(Name, Exists) :-
-    read_products(Products),
-    member(product(Name, _, _, _, _, _, _), Products), !,
-    Exists = true.
-product_exist_name(_, false).
+handle_product_option(2) :-
+    get_product_by_id,
+    menu_product.
 
-find_product_by_id(Id, Products, Product) :-
-    nth1(Id, Products, Product).
+handle_product_option(3) :-
+    get_product_by_name,
+    menu_product.
 
-product_id_match(Id, Product) :-
-    nth1(Id, Product).
+handle_product_option(4) :-
+    show_all_products,
+    menu_product.
 
-alert_product_stock(Limit, product(Name, _, _, _, _, _, Stock)) :-
-    (   Stock < Limit -> 
-        format('Alerta! Produto: ~w está com estoque baixo. Estoque atual: ~w~n', [Name, Stock])
-    ;   format('Produto: ~w está com estoque suficiente. Estoque atual: ~w~n', [Name, Stock])).
+handle_product_option(5) :-
+    update_product,
+    menu_product.
 
-check_product_expiration(CurrentTime, DaysBefore, product(Name, _, _, _, ExpirationDate, _, _)) :-
-    DaysBeforeSeconds is DaysBefore * 86400,
-    ExpiringDate is CurrentTime + DaysBeforeSeconds,
-    (   ExpirationDate =< ExpiringDate -> 
-        format('Alerta! O produto "~w" está perto de vencer ou já venceu. Data de Expiração: ~w~n', [Name, ExpirationDate])
-    ;   format('O produto "~w" está ok. Data de Expiração: ~w~n', [Name, ExpirationDate])).
+handle_product_option(6) :-
+    delete_product,
+    menu_product.
 
-parse_date(DateStr, Date) :-
-    parse_time(DateStr, '%Y-%m-%d', Date).
+handle_product_option(7) :-
+    alert_low_stock_products,
+    menu_product.
 
-read_products(Products) :-
-    open('productDB.pl', read, Stream),
-    read_terms(Stream, Products),
-    close(Stream).
+handle_product_option(8) :-
+    alert_expiring_products,
+    menu_product.
 
-write_products(Products) :-
-    open('productDB.pl', write, Stream),
-    maplist(write_term(Stream), Products),
-    close(Stream).
+handle_product_option(0) :-
+    writeln("\n<--- Voltando ao Menu Principal").
 
-print_product(product(Name, Description, Category, ManufactureDate, ExpirationDate, Price, Stock)) :-
-    format('Nome: ~w\nDescrição: ~w\nCategoria: ~w\nData de Fabricação: ~w\nData de Expiração: ~w\nPreço: ~2f\nEstoque: ~d\n----------------------------------------\n', 
-           [Name, Description, Category, ManufactureDate, ExpirationDate, Price, Stock]).
+handle_product_option(_) :-
+    writeln("Opção inválida. Tente novamente."),
+    menu_product.
+
+create_product :-
+    writeln('Nome: '), read(Name),
+    writeln('Descrição: '), read(Description),
+    writeln('Categoria: '), read(Category),
+    writeln('Fabricante: '), read(Manufacture),
+    writeln('Data de Fabricação (YYYY-MM-DD): '), read(ManufactureDate),
+    writeln('Data de Expiração (YYYY-MM-DD): '), read(ExpirationDate),
+    writeln('Preço: '), read(Price),
+    writeln('Estoque: '), read(Stock),
+    (   product(_, Name, _, _, Manufacture, _, _, _, _) -> % Verifica duplicidade pelo Nome e Fabricante
+        writeln("\n** Produto já cadastrado com o mesmo nome e fabricante! **"), nl
+    ;   generate_new_id(ID),
+        assertz(product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)), % Cria o produto com 9 argumentos
+        format("\n** Produto cadastrado com sucesso! ID: ~w **\n", [ID]), nl
+    ).
+
+get_product_by_id :-
+    writeln('ID do produto para buscar: '), read(Id),
+    ( product_exists_id(Id) ->
+        get_product_by_id(Id, Product),
+        show_product(Product)
+    ;
+        writeln("\n** Produto não encontrado! **"), nl
+    ).
+
+get_product_by_name :-
+    writeln('Nome do produto para buscar: '), read(Name),
+    list_all_products(Products),
+    (
+        member(product(_, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock), Products) -> % Inclui o Fabricante
+        show_product(product(_, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock))
+    ;
+        writeln("\n** Produto não encontrado! **"), nl
+    ).
+
+delete_product :-
+    writeln('ID do produto para deletar: '), read(Id),
+    ( product_exists_id(Id) ->
+        delete_product(Id),
+        writeln("\n** Produto deletado com sucesso! **"), nl
+    ;
+        writeln("\n** Produto não encontrado! **"), nl
+    ).
+
+update_product :-
+    writeln('ID do produto para atualizar: '), read(Id),
+    ( product_exists_id(Id) ->
+        writeln('Novo nome: '), read(NewName),
+        writeln('Nova descrição: '), read(NewDescription),
+        writeln('Nova categoria: '), read(NewCategory),
+        writeln('Novo fabricante: '), read(NewManufacture),
+        writeln('Nova data de fabricação (YYYY-MM-DD): '), read(NewManufactureDate),
+        writeln('Nova data de expiração (YYYY-MM-DD): '), read(NewExpirationDate),
+        writeln('Novo preço: '), read(NewPrice),
+        writeln('Novo estoque: '), read(NewStock),
+        update_product(Id, NewName, NewDescription, NewCategory, NewManufacture, NewManufactureDate, NewExpirationDate, NewPrice, NewStock), % Agora inclui o Fabricante
+        writeln("\n** Produto atualizado com sucesso! **"), nl
+    ;
+        writeln("\n** Produto não encontrado! **"), nl
+    ).
+
+show_all_products :-
+    list_all_products(Products),
+    writeln('\n***************** Lista de Produtos ******************'),
+    print_products(Products).
+
+alert_low_stock_products :-
+    writeln('Limite de estoque para alerta: '), read(Limit),
+    alert_low_stock(Limit).
+
+alert_expiring_products :-
+    writeln('Número de dias para alerta de vencimento: '), read(Days),
+    alert_products_near_expiration(Days).
+
+generate_new_id(NewID) :-
+    findall(ID, product(ID, _, _, _, _, _, _, _, _), IDs),
+    ( IDs = [] -> NewID = 1; max_list(IDs, MaxID), NewID is MaxID + 1).
