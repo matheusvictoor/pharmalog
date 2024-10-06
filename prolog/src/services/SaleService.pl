@@ -1,86 +1,67 @@
-:- module(sale_service, [
-    create_sale/0, 
-    get_all_sales/0, 
-    get_sale_by_client_cpf/0, 
-    update_sale/1, 
-    delete_sale/1, 
-    menu_sale/0
-]).
+menu_sale :- 
+    sales_layout,  % Chama o layout personalizado de vendas
+    nl,
+    write("Escolha uma opção: "), flush_output,
+    read(Option),
+    handle_sale_option(Option).
 
-:- use_module(library(lists)).
-:- use_module(library(time)).
-:- use_module(library(readutil)).
-:- use_module('../models/sale').
+handle_sale_option(1) :-
+    create_sale,
+    menu_sale.
 
+handle_sale_option(2) :-
+    get_sale_by_client_cpf,
+    menu_sale.
 
-create_sale :-
-    read_file_to_terms('saleDB.pl', Sales, []),
-    length(Sales, SaleId),
-    write('CPF do Cliente: '), flush_output, read_line_to_string(user_input, ClientCpfStr), number_string(ClientCpf, ClientCpfStr),
-    write('ID do Vendedor: '), flush_output, read_line_to_string(user_input, SellerIdStr), number_string(SellerId, SellerIdStr),
-    write('Data da Venda (YYYY-MM-DD): '), flush_output, read_line_to_string(user_input, DateSaleStr), parse_date(DateSaleStr, DateSale),
-    write('Valor da Venda (9.99): '), flush_output, read_line_to_string(user_input, TotalSaleStr), number_string(TotalSale, TotalSaleStr),
-    Sale = sale(ClientCpf, SellerId, DateSale, TotalSale, []),
-    open('saleDB.pl', append, Stream),
-    write(Stream, sale(SaleId, Sale)), write(Stream, '.'), nl(Stream),
-    close(Stream),
-    write('** Venda registrada com sucesso! **'), nl.
+handle_sale_option(3) :-
+    get_all_sales,
+    menu_sale.
+
+handle_sale_option(0) :-
+    writeln("\nVoltando ao menu principal...").
+
+handle_sale_option(_) :- 
+    writeln("\n** Opção inválida. Tente novamente! **"),
+    menu_sale.
 
 
-get_all_sales :-
-    read_file_to_terms('saleDB.pl', Sales, []),
-    maplist(print_sale, Sales).
+create_sale :- 
+    writeln('CPF do Cliente: '), read(CPF),
+    writeln('ID do Vendedor: '), read(SellerId),
+    writeln('Data da Venda (YYYY-MM-DD): '), read(DateSale),
+    writeln('Valor da Venda (9.99): '), read(TotalSale),
+    generate_new_sale_id(SaleId),  % Função para gerar ID único
+    assertz(sale(SaleId, CPF, SellerId, DateSale, TotalSale, [])),
+    format("\n** Venda cadastrada com sucesso! ID da Venda: ~w **\n", [SaleId]).
 
 
-get_sale_by_client_cpf :-
-    write('CPF do Cliente: '), flush_output, read_line_to_string(user_input, ClientCpfStr), number_string(ClientCpf, ClientCpfStr),
-    read_file_to_terms('saleDB.pl', Sales, []),
-    (   member(sale(_, Sale), Sales),
-        Sale = sale(ClientCpf, _, _, _, _) -> 
-        print_sale(sale(ClientCpf, Sale))
-    ;   write('Venda não encontrada.'), nl).
+get_sale_by_client_cpf :- 
+    writeln('Digite o CPF do Cliente: '), read(CPF),
+    findall(Sale, sale(_, CPF, _, _, _, _), Sales),
+    ( Sales = [] ->
+        writeln('Nenhuma venda encontrada para este CPF.')
+    ;
+        writeln('Vendas encontradas:'),
+        print_sales(Sales)
+    ).
 
-update_sale(ClientCpf) :-
-    read_file_to_terms('saleDB.pl', Sales, []),
-    maplist(update_if_found(ClientCpf), Sales, UpdatedSales),
-    open('saleDB.pl', write, Stream),
-    maplist(write_term(Stream, [fullstop(true)]), UpdatedSales),
-    close(Stream),
-    write('** Venda atualizada com sucesso! **'), nl.
-
-update_if_found(ClientCpf, sale(Index, Sale), sale(Index, UpdatedSale)) :-
-    Sale = sale(ClientCpf, SellerId, DateSale, TotalSale, Products),
-    !, 
-    UpdatedSale = sale(ClientCpf, SellerId, DateSale, TotalSale, Products).
-update_if_found(_, Sale, Sale).
-
-delete_sale(ClientCpf) :-
-    read_file_to_terms('saleDB.pl', Sales, []),
-    exclude(sale_cpf_match(ClientCpf), Sales, FilteredSales),
-    open('saleDB.pl', write, Stream),
-    maplist(write_term(Stream, [fullstop(true)]), FilteredSales),
-    close(Stream),
-    write('** Venda deletada com sucesso! **'), nl.
-
-sale_cpf_match(ClientCpf, sale(_, sale(ClientCpf, _, _, _, _))).
+get_all_sales :- 
+    writeln('Todas as vendas cadastradas no sistema:'),
+    findall(Sale, sale(_, _, _, _, _, _), Sales),
+    ( Sales = [] ->
+        writeln('Nenhuma venda cadastrada.')
+    ;
+        print_sales(Sales)
+    ).
 
 
-print_sale(sale(Index, sale(ClientId, SellerId, DateSale, TotalSale, Products))) :-
-    format('ID da Venda: ~w\nCPF do Cliente: ~w\nID do Vendedor: ~w\nData da Venda: ~w\nValor Total: ~2f\nProdutos: ~w\n----------------------------------------\n', 
-           [Index, ClientId, SellerId, DateSale, TotalSale, Products]).
+generate_new_sale_id(NewID) :-
+    findall(ID, sale(ID, _, _, _, _, _), IDs),
+    ( IDs = [] -> NewID = 1; max_list(IDs, MaxID), NewID is MaxID + 1 ).
 
 
-parse_date(DateStr, Date) :-
-    parse_time(DateStr, '%Y-%m-%d', Date).
-
-
-menu_sale :-
-    write('\nSelecione uma opção:\n1. Cadastrar um nova venda\n2. Buscar um cliente por CPF\n3. Buscar todas as vendas\n0 <- Voltar\n'),
-    write('\nOpção -> '), flush_output, read_line_to_string(user_input, Option),
-    menu_opcao(Option).
-
-menu_opcao("1") :- create_sale.
-menu_opcao("2") :- get_sale_by_client_cpf.
-menu_opcao("3") :- get_all_sales.
-menu_opcao("0") :- write('\n<---\n').
-menu_opcao(_)   :- write('Opção inválida. Tente novamente.\n'), menu_sale.
+print_sales([]) :- writeln('--- Fim da lista ---').
+print_sales([sale(ID, CPF, SellerId, DateSale, TotalSale, _) | Rest]) :-
+    format('ID: ~w | CPF Cliente: ~w | Vendedor: ~w | Data: ~w | Valor: R$~2f\n', 
+        [ID, CPF, SellerId, DateSale, TotalSale]),
+    print_sales(Rest).
