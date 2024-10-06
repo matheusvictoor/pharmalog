@@ -1,10 +1,10 @@
 :- consult('../services/user_service.pl').
 :- consult('../services/chat_service.pl').
-:- consult('../services/ProductService.pl').
 :- consult('../services/product_service.pl').
 :- consult('../assets/menu_layout.pl').
 :- consult('../assets/user_layout.pl').
 :- consult('../assets/product_layout.pl').
+:- consult('../services/SaleService.pl'). 
 :- consult('../assets/sales_layout.pl').
 :- consult('../assets/client_layout.pl').
 :- consult('../assets/report_layout.pl').
