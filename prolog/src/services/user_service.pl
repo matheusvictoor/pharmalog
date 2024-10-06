@@ -10,7 +10,7 @@ menu_user :-
 
 handle_user_option(1) :-
   writeln("\nCPF: "), read(CPF),
-  ( validar_cpf(CPF) ->  % Valida se o CPF é válido
+  ( validar_cpf(CPF) ->
     ( user_exists_cpf(CPF) -> 
       exibir_mensagem_formatada("CPF já cadastrado!"),
       aguardar_enter,
@@ -91,8 +91,7 @@ exibir_mensagem_formatada(Mensagem) :-
     EspacoEsquerda is EspacoTotal // 2,
     EspacoDireita is EspacoTotal - EspacoEsquerda,
     format('~` t~*|~w~` t~*|~n', [EspacoEsquerda, Mensagem, EspacoDireita]),
-    format('~`-t~168|~n'),
-    nl.
+    format('~`-t~168|~n').
 
 aguardar_enter :-
     writeln("\nPressione ENTER para continuar..."),
@@ -102,4 +101,8 @@ aguardar_enter :-
 validar_cpf(CPF) :-
     atom_length(CPF, 11),
     atom_chars(CPF, Chars),
-    maplist(char_type(digit), Chars).
+    maplist(is_digit_char, Chars).
+
+is_digit_char(Char) :-
+    char_type(Char, digit).
+
