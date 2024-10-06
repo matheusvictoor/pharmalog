@@ -1,6 +1,6 @@
 :- consult('../models/message.pl').
 :- consult('../assets/chat_layout.pl').
-:- consult('user_service.pl')
+:- consult('user_service.pl').
 :- dynamic message/3.
 :- use_module(library(random)).
 
