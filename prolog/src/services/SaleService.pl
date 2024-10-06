@@ -10,8 +10,7 @@
 :- use_module(library(lists)).
 :- use_module(library(time)).
 :- use_module(library(readutil)).
-
-:- use_module(sale).  % Módulo Sale.
+:- use_module('../models/sale').
 
 
 create_sale :-

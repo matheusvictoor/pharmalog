@@ -47,21 +47,55 @@ handle_product_option(_) :-
     writeln("Opção inválida. Tente novamente."),
     menu_product.
 
-create_product :-
-    writeln('Nome: '), read(Name),
-    writeln('Descrição: '), read(Description),
-    writeln('Categoria: '), read(Category),
-    writeln('Fabricante: '), read(Manufacture),
-    writeln('Data de Fabricação (YYYY-MM-DD): '), read(ManufactureDate),
-    writeln('Data de Expiração (YYYY-MM-DD): '), read(ExpirationDate),
-    writeln('Preço: '), read(Price),
-    writeln('Estoque: '), read(Stock),
-    (   product(_, Name, _, _, Manufacture, _, _, _, _) -> % Verifica duplicidade pelo Nome e Fabricante
+create_product :- 
+    get_char(_),  % Limpa qualquer caractere residual
+    writeln('Nome: '), read_line_to_string(user_input, Name),
+    ( Name == "" -> 
+        writeln('** Erro: O nome do produto é obrigatório. **'), fail
+    ; true),
+    
+    writeln('Descrição: '), read_line_to_string(user_input, Description),
+    writeln('Categoria: '), read_line_to_string(user_input, Category),
+    writeln('Fabricante: '), read_line_to_string(user_input, Manufacture),
+    ( Manufacture == "" ->
+        writeln('** Erro: O fabricante do produto é obrigatório. **'), fail
+    ; true),
+    
+    writeln('Data de Fabricação (YYYY-MM-DD): '), read_line_to_string(user_input, ManufactureDate),
+    ( \+ valid_date(ManufactureDate) -> 
+        writeln('** Erro: Data de fabricação inválida. Use o formato YYYY-MM-DD. **'), fail
+    ; true),
+    
+    writeln('Data de Expiração (YYYY-MM-DD): '), read_line_to_string(user_input, ExpirationDate),
+    ( \+ valid_date(ExpirationDate) -> 
+        writeln('** Erro: Data de expiração inválida. Use o formato YYYY-MM-DD. **'), fail
+    ; true),
+    
+    writeln('Preço: '), read_line_to_string(user_input, PriceStr), 
+    ( catch(number_string(Price, PriceStr), _, fail) -> 
+        true
+    ; writeln('** Erro: Preço inválido. Insira um número válido. **'), fail),
+    
+    writeln('Estoque: '), read_line_to_string(user_input, StockStr),
+    ( catch(number_string(Stock, StockStr), _, fail) -> 
+        true
+    ; writeln('** Erro: Estoque inválido. Insira um número válido. **'), fail),
+    
+    (   product(_, Name, _, _, Manufacture, _, _, _, _) -> 
         writeln("\n** Produto já cadastrado com o mesmo nome e fabricante! **"), nl
     ;   generate_new_id(ID),
-        assertz(product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)), % Cria o produto com 9 argumentos
+        assertz(product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)),
         format("\n** Produto cadastrado com sucesso! ID: ~w **\n", [ID]), nl
     ).
+
+
+valid_date(DateStr) :-
+    split_string(DateStr, "-", "", [Year, Month, Day]),
+    string_length(Year, 4), string_length(Month, 2), string_length(Day, 2),
+    catch(number_string(_, Year), _, fail),
+    catch(number_string(_, Month), _, fail),
+    catch(number_string(_, Day), _, fail).
+
 
 get_product_by_id :-
     writeln('ID do produto para buscar: '), read(Id),
