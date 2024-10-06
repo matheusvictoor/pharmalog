@@ -10,25 +10,38 @@
 ]).
 
 :- use_module('../models/Client').  
-:- use_module('../models/Product').
-:- use_module('../models/Sale').
 :- use_module(library(readutil)).
 :- use_module(library(lists)).
-:- use_module(client).  
-:- use_module(product).  
-:- use_module(sale).
+
+valid_cpf(CPF) :-
+    string_length(CPF, 11),
+    string_chars(CPF, Digits),
+    maplist(is_digit, Digits).
+
+is_digit(Char) :- char_type(Char, digit).
 
 create_client :-
     write('Nome: '), flush_output, read_line_to_string(user_input, Name),
     write('Idade: '), flush_output, read_line_to_string(user_input, AgeStr), number_string(Age, AgeStr),
     write('Endereço: '), flush_output, read_line_to_string(user_input, Address),
-    write('CPF: '), flush_output, read_line_to_string(user_input, CPF),
-    write('Telefone: '), flush_output, read_line_to_string(user_input, Phone),
-    Client = client(Name, Age, CPF, Address, Phone, []),
-    open('customerDB.pl', append, Stream),
-    write(Stream, Client), write(Stream, '.'), nl(Stream),
-    close(Stream),
-    write('** Cliente cadastrado com sucesso! **'), nl.
+    write('CPF (somente números, 11 dígitos): '), flush_output, read_line_to_string(user_input, CPF),
+    (   \+ valid_cpf(CPF) -> 
+        writeln('** CPF inválido! O CPF deve ter 11 dígitos e conter apenas números. **'),
+        create_client
+    ;   client_exists(CPF) -> 
+        writeln('** CPF já cadastrado! **'),
+        create_client
+    ;   write('Telefone: '), flush_output, read_line_to_string(user_input, Phone),
+        Client = client(Name, Age, CPF, Address, Phone, []),
+        open('customerDB.pl', append, Stream),
+        write(Stream, Client), write(Stream, '.'), nl(Stream),
+        close(Stream),
+        write('** Cliente cadastrado com sucesso! **'), nl
+    ).
+
+client_exists(CPF) :-
+    get_all_clients(Clients),
+    member(client(_, _, CPF, _, _, _), Clients).
 
 get_all_clients(Clients) :-
     open('customerDB.pl', read, Stream),
@@ -36,24 +49,37 @@ get_all_clients(Clients) :-
     close(Stream).
 
 get_client_by_cpf(CPF, Client) :-
-    get_all_clients(Clients),
-    member(Client, Clients),
-    client_cpf(Client, CPF).
+    (   valid_cpf(CPF)
+    ->  get_all_clients(Clients),
+        member(Client, Clients),
+        client_cpf(Client, CPF)
+    ;   writeln('** CPF inválido! **')
+    ).
 
 view_client_info(CPF) :-
-    get_client_by_cpf(CPF, Client),
-    format('Informações do Cliente: ~w~n', [Client]).
+    (   valid_cpf(CPF)
+    ->  (   get_client_by_cpf(CPF, Client)
+        ->  format('Informações do Cliente: ~w~n', [Client])
+        ;   writeln('** Cliente não encontrado! **')
+        )
+    ;   writeln('** CPF inválido! **')
+    ).
 
 update_client(CPF) :-
-    get_all_clients(Clients),
-    maplist(update_if_found(CPF), Clients, UpdatedClients),
-    open('customerDB.pl', write, Stream),
-    write_terms(Stream, UpdatedClients),
-    close(Stream),
-    write('** Cliente atualizado com sucesso! **'), nl.
+    (   valid_cpf(CPF)
+    ->  (   get_client_by_cpf(CPF, Client)
+        ->  get_all_clients(Clients),
+            maplist(update_if_found(CPF), Clients, UpdatedClients),
+            open('customerDB.pl', write, Stream),
+            write_terms(Stream, UpdatedClients),
+            close(Stream),
+            write('** Cliente atualizado com sucesso! **'), nl
+        ;   writeln('** Cliente não encontrado! **')
+        )
+    ;   writeln('** CPF inválido! **')
+    ).
 
-update_if_found(CPF, Client, UpdatedClient) :-
-    client_cpf(Client, CPF), !,
+update_if_found(CPF, client(_, _, CPF, _, _, Sales), UpdatedClient) :-
     write('Novo Nome: '), flush_output, read_line_to_string(user_input, NewName),
     write('Nova Idade: '), flush_output, read_line_to_string(user_input, NewAgeStr), number_string(NewAge, NewAgeStr),
     write('Novo Endereço: '), flush_output, read_line_to_string(user_input, NewAddress),
@@ -62,12 +88,15 @@ update_if_found(CPF, Client, UpdatedClient) :-
 update_if_found(_, Client, Client).
 
 delete_client(CPF) :-
-    get_all_clients(Clients),
-    exclude(client_cpf_match(CPF), Clients, FilteredClients),
-    open('customerDB.pl', write, Stream),
-    write_terms(Stream, FilteredClients),
-    close(Stream),
-    write('** Cliente deletado com sucesso! **'), nl.
+    (   valid_cpf(CPF)
+    ->  get_all_clients(Clients),
+        exclude(client_cpf_match(CPF), Clients, FilteredClients),
+        open('customerDB.pl', write, Stream),
+        write_terms(Stream, FilteredClients),
+        close(Stream),
+        write('** Cliente deletado com sucesso! **'), nl
+    ;   writeln('** CPF inválido! **')
+    ).
 
 client_cpf_match(CPF, client(_, _, CPF, _, _, _)).
 
@@ -82,35 +111,22 @@ add_sale_to_client(CPF, NewSale) :-
 add_sale(CPF, NewSale, client(Name, Age, CPF, Address, Phone, Sales), client(Name, Age, CPF, Address, Phone, [NewSale|Sales])).
 add_sale(_, _, Client, Client).
 
-n_sales_client(Client, N) :-
-    client_sales(Client, Sales),
-    length(Sales, N).
-
-level_client(Client, Level) :-
-    n_sales_client(Client, N),
-    (N >= 50 -> Level = 'Cliente nível ouro!';
-     N >= 25 -> Level = 'Cliente nível prata!';
-     Level = 'Cliente nível bronze!').
-
-relatory_product(product(Name, Description, Category, DateManufacture, ExpirationDate, Price, Stock), Report) :-
-    format(atom(Report), '~w: Descrição = ~w, Categoria = ~w, Data de Produção = ~w, Data de Validade = ~w, Preço = ~2f, Estoque = ~d', 
-           [Name, Description, Category, DateManufacture, ExpirationDate, Price, Stock]).
-
-relatory_product_client(Client, Report) :-
-    client_sales(Client, Sales),
-    maplist(relatory_product, Sales, Reports),
-    atomic_list_concat(Reports, '\n', Report).
-
 menu_client :-
-    write('\nSelecione uma opção:\n1.  Cadastrar um novo cliente\n2.  Buscar um cliente por CPF\n3.  Buscar todos os clientes\n4.  Atualizar um cliente\n5.  Deletar um cliente\n0 <- Voltar\n'),
-    write('\nOpção -> '), flush_output,
+    writeln("\nMenu de Clientes"),
+    writeln("1. Cadastrar um novo cliente"),
+    writeln("2. Buscar um cliente por CPF"),
+    writeln("3. Listar todos os clientes"),
+    writeln("4. Atualizar um cliente"),
+    writeln("5. Deletar um cliente"),
+    writeln("0. Voltar"),
+    write("\nOpção -> "), flush_output,
     read_line_to_string(user_input, Option),
-    menu_option(Option).
+    handle_client_menu_option(Option).
 
-menu_option("1") :- create_client.
-menu_option("2") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), view_client_info(CPF).
-menu_option("3") :- get_all_clients(Clients), maplist(write, Clients).
-menu_option("4") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), update_client(CPF).
-menu_option("5") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), delete_client(CPF).
-menu_option("0") :- write('\n<---\n').
-menu_option(_) :- write('Opção inválida. Tente novamente.\n'), menu_client.
+handle_client_menu_option("1") :- create_client.
+handle_client_menu_option("2") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), view_client_info(CPF).
+handle_client_menu_option("3") :- get_all_clients(Clients), maplist(writeln, Clients).
+handle_client_menu_option("4") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), update_client(CPF).
+handle_client_menu_option("5") :- write('CPF: '), flush_output, read_line_to_string(user_input, CPF), delete_client(CPF).
+handle_client_menu_option("0") :- writeln('\n<--- Voltando ao Menu Principal').
+handle_client_menu_option(_) :- writeln('Opção inválida. Tente novamente.\n'), menu_client.
