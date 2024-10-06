@@ -1,5 +1,6 @@
 :- consult('../models/message.pl').
 :- consult('../assets/chat_layout.pl').
+:- consult('user_service.pl')
 :- dynamic message/3.
 :- use_module(library(random)).
 
@@ -22,7 +23,7 @@ chat_loop(ID) :-
   read_line_to_string(user_input, ClientMessage),
   
   ( ClientMessage == "sair" -> 
-      format('\n-------------------------------------------------------------------- Chat encerrado pelo cliente! ---------------------------------------------------------------------'),
+      exibir_mensagem_formatada('Chat encerrado pelo cliente!'),
       display_messages(ID)
     ;
       assertz(message('Cliente', ClientMessage, ID)),
@@ -37,17 +38,16 @@ chat_loop(ID) :-
   ).
 
 display_messages(ID) :-
-  format('\n------------------------------------------------------------------ Histórico de Mensagens (ID: ~w) -------------------------------------------------------------------\n', [ID]),
+  format('\n------------------------------------------------------------------ Histórico de Mensagens (ID: ~w) -------------------------------------------------------------------\n', [ID]), nl,
   forall(message(Sender, Content, ID),
-          (format('~w: ~s~n', [Sender, Content]))),
-  writeln("------------------------------------------------------------------------------------------------------------------------------------------------------------------------").
+    (format('~w: ~s~n', [Sender, Content]))),
+  aguardar_enter.
 
 save_chat(NewMessages) :-
   open('../data/chatDB.pl', append, Stream),
   forall(member(message(Sender, Content, ID), NewMessages),
           format(Stream, 'message(~q, ~q, ~q).~n', [Sender, Content, ID])),
   close(Stream).
-  % retractall(message(_, _, _)).
 
 load_chat :-
   exists_file('../data/chatDB.pl'),
