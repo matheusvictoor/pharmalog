@@ -17,7 +17,8 @@ handle_user_option(1) :-
     writeln("Senha: "), read(Password),
     writeln("Função (administrador | gerente | vendedor): "), read(Role),
     create_user(Name, CPF, Password, Role),
-    write("\n*********** Usuário cadastrado com sucesso! **********"), nl, nl,
+    % write("\n*********** Usuário cadastrado com sucesso! **********"), nl, nl,
+    exibir_mensagem_formatada('Usuário cadastrado com sucesso!'), nl, nl,
     menu_user
   ).
 
@@ -64,3 +65,14 @@ handle_user_option(0) :-
 handle_user_option(_) :-
   writeln("Opção inválida. Tente novamente."),
   menu_user.
+
+exibir_mensagem_formatada(Mensagem) :-
+    nl,
+    format('~`-t~168|~n'),
+    string_length(Mensagem, TamMsg),
+    EspacoTotal is 168 - TamMsg - 2,
+    EspacoEsquerda is EspacoTotal // 2,
+    EspacoDireita is EspacoTotal - EspacoEsquerda,
+    format('~` t~*|~w~` t~*|~n', [EspacoEsquerda, Mensagem, EspacoDireita]),
+    format('~`-t~168|~n'),
+    nl. % Pula uma linha após a mensagem
