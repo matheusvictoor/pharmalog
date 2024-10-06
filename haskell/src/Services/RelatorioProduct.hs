@@ -64,6 +64,11 @@ menuRelatorio = do
         "1" -> relatorioPorPreco
         "2" -> relatorioPorCategoria
         "3" -> relatorioPorEstoque
+<<<<<<< HEAD:src/Services/RelatorioProduct.hs
+        "0" -> putStrLn "Saindo..."
+        _   -> putStrLn "Opção inválida" >> menuRelatorio
+=======
         "0" -> putStrLn "\n<---"
         _   -> putStrLn "\nOpção inválida" >> menuRelatorio
+>>>>>>> 8da5a02b4db93b0254cfe0cca2688f2382631277:haskell/src/Services/RelatorioProduct.hs
     putStrLn ""
