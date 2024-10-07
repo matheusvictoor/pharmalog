@@ -1,6 +1,6 @@
 :- module(client, [client/6, show_client/1]).
 
-client(Name, Age, CPF, Address, Phone, Sales).
+client(_, _, _, _, _, _).
 
 show_client(client(Name, Age, CPF, Address, Phone, Sales)) :-
     format('Client Name: ~w~n', [Name]),
