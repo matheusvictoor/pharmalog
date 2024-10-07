@@ -1,1 +1,0 @@
-:- dynamic client/6
