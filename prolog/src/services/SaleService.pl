@@ -1,3 +1,5 @@
+:- consult('product_service.pl').
+
 menu_sale :- 
     sales_layout, 
     nl,
@@ -24,12 +26,11 @@ handle_sale_option(_) :-
     writeln("\n** Opção inválida. Tente novamente! **"),
     menu_sale.
 
-
 :- dynamic sale/6.
 
 create_sale :- 
     writeln('CPF do Cliente: '), read(CPF),
-    ( \+ valid_cpf(CPF) -> 
+    ( \+ validar_cpf(CPF) -> 
         writeln('** Erro: CPF inválido. O CPF deve conter 11 dígitos numéricos. **'), fail
     ; true),
     
@@ -56,35 +57,17 @@ create_sale :-
     assertz(sale(SaleId, CPF, SellerId, DateSale, TotalSale, [])),  
     format("\n** Venda cadastrada com sucesso! ID da Venda: ~w **\n", [SaleId]).
 
-
-valid_cpf(CPF) :-
-    atom_chars(CPF, Digits),
-    length(Digits, 11),  % O CPF deve ter exatamente 11 dígitos
-    maplist(char_type, Digits, digit).  % Verifica se todos os caracteres são dígitos
-
-
-valid_date(DateStr) :- 
-    split_string(DateStr, "-", "", [Year, Month, Day]),
-    string_length(Year, 4), string_length(Month, 2), string_length(Day, 2),
-    catch(number_string(_, Year), _, fail),
-    catch(number_string(_, Month), _, fail),
-    catch(number_string(_, Day), _, fail).
-
-
 valid_price(Price) :- 
     number(Price), 
     Price > 0.
-
 
 generate_new_sale_id(NewID) :-
     findall(Id, sale(Id, _, _, _, _, _), IDs),
     ( IDs = [] -> NewID = 1 ; max_list(IDs, MaxID), NewID is MaxID + 1).
 
-
-
 get_sale_by_client_cpf :- 
     writeln('Digite o CPF do Cliente: '), read(CPF),
-    findall(Sale, sale(_, CPF, _, _, _, _), Sales),
+    findall(_, sale(_, CPF, _, _, _, _), Sales),
     ( Sales = [] ->
         writeln('Nenhuma venda encontrada para este CPF.')
     ;
@@ -94,18 +77,12 @@ get_sale_by_client_cpf :-
 
 get_all_sales :- 
     writeln('Todas as vendas cadastradas no sistema:'),
-    findall(Sale, sale(_, _, _, _, _, _), Sales),
+    findall(_, sale(_, _, _, _, _, _), Sales),
     ( Sales = [] ->
         writeln('Nenhuma venda cadastrada.')
     ;
         print_sales(Sales)
     ).
-
-
-generate_new_sale_id(NewID) :-
-    findall(ID, sale(ID, _, _, _, _, _), IDs),
-    ( IDs = [] -> NewID = 1; max_list(IDs, MaxID), NewID is MaxID + 1 ).
-
 
 print_sales([]) :- writeln('--- Fim da lista ---').
 print_sales([sale(ID, CPF, SellerId, DateSale, TotalSale, _) | Rest]) :-
