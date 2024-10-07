@@ -1,5 +1,7 @@
+:- dynamic sale/6.
+
 menu_sale :- 
-    sales_layout,  % Chama o layout personalizado de vendas
+    sales_layout,  
     nl,
     write("Escolha uma opção: "), flush_output,
     read(Option),
@@ -25,12 +27,13 @@ handle_sale_option(_) :-
     menu_sale.
 
 
+
 create_sale :- 
     writeln('CPF do Cliente: '), read(CPF),
     writeln('ID do Vendedor: '), read(SellerId),
     writeln('Data da Venda (YYYY-MM-DD): '), read(DateSale),
     writeln('Valor da Venda (9.99): '), read(TotalSale),
-    generate_new_sale_id(SaleId),  % Função para gerar ID único
+    generate_new_sale_id(SaleId),  
     assertz(sale(SaleId, CPF, SellerId, DateSale, TotalSale, [])),
     format("\n** Venda cadastrada com sucesso! ID da Venda: ~w **\n", [SaleId]).
 
