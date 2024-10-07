@@ -111,7 +111,7 @@ get_product_by_id :-
     ( product_exists_id(Id) ->
         get_product_by_id(Id, Product), nl,
         exibir_mensagem_formatada('Informações do Produto'),
-        show_product(Product),
+        print_products(Product),
         aguardar_enter
     ;
         exibir_mensagem_formatada("✗ Erro: Produto não encontrado!"), aguardar_enter
