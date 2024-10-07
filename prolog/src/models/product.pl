@@ -22,7 +22,7 @@ product_exists_id(Id) :-
     list_all_products(Products),
     member(product(Id, _, _, _, _, _, _, _, _), Products).
 
-get_product_by_id(Id, [product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)]) :- 
+get_product_by_id(ID, [product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)]) :- 
     product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock).
 
 delete_product(Id) :-
