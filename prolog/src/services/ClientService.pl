@@ -46,7 +46,7 @@ handle_client_option(2) :-
   menu_client.
 
 handle_client_option(3) :-
-  exibir_mensagem_formatada('Lista de Clients'), nl, nl,
+  exibir_mensagem_formatada('Lista de Clients:'), nl, nl,
   list_all_clients,
   aguardar_enter,
   menu_client.
