@@ -117,14 +117,17 @@ get_product_by_id :-
         exibir_mensagem_formatada("✗ Erro: Produto não encontrado!"), aguardar_enter
     ).
 
-get_product_by_name :-
-    writeln('Nome do produto para buscar: '), read(Name),
-    list_all_products(Products),
-    (
-        member(product(_, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock), Products) -> % Inclui o Fabricante
-        show_product(product(_, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock))
+get_product_by_name :- 
+    writeln('Nome do produto para buscar: '), 
+    read_line_to_string(user_input, Name),
+    ( product_exists_name(Name) ->
+        exibir_mensagem_formatada('Produtos Encontrados'),
+        list_all_products(Products),
+        include(has_name(Name), Products, FilteredProducts),
+        print_products(FilteredProducts),
+        aguardar_enter
     ;
-        exibir_mensagem_formatada("✗ Erro: Produto não encontrado!"), aguardar_enter
+        exibir_mensagem_formatada("✗ Produto não encontrado!"), aguardar_enter
     ).
 
 delete_product :-
@@ -153,10 +156,15 @@ update_product :-
         exibir_mensagem_formatada("✗ Erro: Produto não encontrado!"), aguardar_enter
     ).
 
-show_all_products :-
+show_all_products :- 
     list_all_products(Products),
-    writeln('\n***************** Lista de Produtos ******************'),
-    print_products(Products).
+    ( Products \= [] ->
+        exibir_mensagem_formatada('Lista de Produtos'),
+        print_products(Products),
+        aguardar_enter
+    ;
+        exibir_mensagem_formatada("✗ Nenhum produto encontrado!"), aguardar_enter
+    ).
 
 alert_low_stock_products :-
     writeln('Limite de estoque para alerta: '), read(Limit),
