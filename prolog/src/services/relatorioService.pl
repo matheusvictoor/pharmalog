@@ -1,8 +1,5 @@
 :- consult('../models/product.pl').
 :- consult('../services/product_service.pl').
-:- use_module(library(readutil)).
-:- use_module(library(lists)).
-:- use_module(library(time)).
 
 menu_relatorio_service :-
     nl,
