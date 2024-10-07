@@ -1,12 +1,12 @@
 :- dynamic client/6.
 
 load_clients :-
-    exists_file('../data/clientDB.pl'),
-    consult('../data/clientDB.pl'), !;
-    open('../data/clientDB.pl', write, Stream), close(Stream).
+    exists_file('../data/customerDB.pl'),
+    consult('../data/customerDB.pl'), !;
+    open('../data/customerDB.pl', write, Stream), close(Stream).
 
 save_client :-
-    tell('../data/clientDB.pl'),
+    tell('../data/customerDB.pl'),
     listing(client),
     told.
 
