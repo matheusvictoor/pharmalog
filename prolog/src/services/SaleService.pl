@@ -1,7 +1,8 @@
 :- consult('product_service.pl').
+:- dynamic sale/6.
 
 menu_sale :- 
-    sales_layout, 
+    sales_layout,  
     nl,
     write("Escolha uma opção: "), flush_output,
     read(Option),
@@ -30,40 +31,12 @@ handle_sale_option(_) :-
 
 create_sale :- 
     writeln('CPF do Cliente: '), read(CPF),
-    ( \+ validar_cpf(CPF) -> 
-        writeln('** Erro: CPF inválido. O CPF deve conter 11 dígitos numéricos. **'), fail
-    ; true),
-    
-   
     writeln('ID do Vendedor: '), read(SellerId),
-    ( \+ integer(SellerId) -> 
-        writeln('** Erro: O ID do vendedor deve ser um número inteiro. **'), fail
-    ; true),
-
-
     writeln('Data da Venda (YYYY-MM-DD): '), read(DateSale),
-    ( \+ valid_date(DateSale) -> 
-        writeln('** Erro: Data da venda inválida. Use o formato YYYY-MM-DD. **'), fail
-    ; true),
-
- 
     writeln('Valor da Venda (9.99): '), read(TotalSale),
-    ( \+ valid_price(TotalSale) -> 
-        writeln('** Erro: Valor da venda inválido. Insira um valor numérico. **'), fail
-    ; true),
-    
-    
-    generate_new_sale_id(SaleId),  % Função para gerar ID único
-    assertz(sale(SaleId, CPF, SellerId, DateSale, TotalSale, [])),  
+    generate_new_sale_id(SaleId),  
+    assertz(sale(SaleId, CPF, SellerId, DateSale, TotalSale, [])),
     format("\n** Venda cadastrada com sucesso! ID da Venda: ~w **\n", [SaleId]).
-
-valid_price(Price) :- 
-    number(Price), 
-    Price > 0.
-
-generate_new_sale_id(NewID) :-
-    findall(Id, sale(Id, _, _, _, _, _), IDs),
-    ( IDs = [] -> NewID = 1 ; max_list(IDs, MaxID), NewID is MaxID + 1).
 
 get_sale_by_client_cpf :- 
     writeln('Digite o CPF do Cliente: '), read(CPF),
@@ -83,6 +56,10 @@ get_all_sales :-
     ;
         print_sales(Sales)
     ).
+
+generate_new_sale_id(NewID) :-
+    findall(ID, sale(ID, _, _, _, _, _), IDs),
+    ( IDs = [] -> NewID = 1; max_list(IDs, MaxID), NewID is MaxID + 1 ).
 
 print_sales([]) :- writeln('--- Fim da lista ---').
 print_sales([sale(ID, CPF, SellerId, DateSale, TotalSale, _) | Rest]) :-

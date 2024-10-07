@@ -50,7 +50,7 @@ handle_product_option(_) :-
     menu_product.
 
 create_product :- 
-    get_char(_),  % Limpa qualquer caractere residual
+    get_char(_), 
     writeln('Nome: '), read_line_to_string(user_input, Name),
     ( Name == "" -> 
         exibir_mensagem_formatada('✗ Erro: O nome do produto é obrigatório.'), aguardar_enter, fail
