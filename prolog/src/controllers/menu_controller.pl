@@ -9,7 +9,7 @@
 :- consult('../assets/client_layout.pl').
 :- consult('../assets/report_layout.pl').
 :- consult('../assets/chat_layout.pl').
-:- consult('../services/RelatorioProduct.pl').
+:- consult('../services/relatorioService.pl').
 
 :- load_chat.
 
@@ -43,6 +43,11 @@ handle_menu_option(4) :-
 handle_menu_option(5) :-
   chat_layout,
   start_chat,
+  menu.
+
+handle_menu_option(6) :-
+  report_layout,
+  menu_relatorio_service,
   menu.
 
 handle_menu_option(0) :- 
