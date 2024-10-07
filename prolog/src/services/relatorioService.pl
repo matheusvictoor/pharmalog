@@ -1,5 +1,6 @@
 :- consult('../models/product.pl').
 :- consult('../services/product_service.pl').
+:- consult('user_service').
 
 menu_relatorio_service :-
     nl,
@@ -100,8 +101,3 @@ filtrar_por_estoque(Min, Max, Produtos, Filtrados) :-
 produto_na_faixa_de_estoque(Min, Max, product(_, _, _, _, _, _, _, _, Estoque)) :-
     Estoque >= Min,
     Estoque =< Max.
-
-aguardar_enter :-
-    write("\nPressione Enter para continuar..."),
-    get_single_char(_).
-
