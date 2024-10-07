@@ -43,9 +43,9 @@ relatorio_por_preco :-
     exibir_produtos(ProdutosFiltrados).
 
 read_number(Number) :-
-    read_line_to_string(user_input, Input),
-    (   number_string(Number, Input)
-    ->  true
+    read(Input),
+    (   number(Input)
+    ->  Number = Input
     ;   writeln('Entrada inválida. Por favor, insira um número.'),
         read_number(Number)
     ).
