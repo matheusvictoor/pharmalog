@@ -39,7 +39,6 @@ delete_user(CPF) :-
 
 list_users :-
   findall(user(Name, CPF, _, Role), user(Name, CPF, _, Role), Users),
-  write('***************** Lista de usuarios ******************'), nl, nl,
   print_users(Users).
 
 print_users([]).

@@ -22,10 +22,8 @@ product_exists_id(Id) :-
     list_all_products(Products),
     member(product(Id, _, _, _, _, _, _, _, _), Products).
 
-get_product_by_id(Id, Product) :-
-    list_all_products(Products),
-    member(Product, Products),
-    Product = product(Id, _, _, _, _, _, _, _, _).
+get_product_by_id(ID, [product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock)]) :- 
+    product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock).
 
 delete_product(Id) :-
     list_all_products(Products),
@@ -48,9 +46,10 @@ list_all_products(Products) :-
             Products).
 
 print_products([]).
-print_products([product(Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock) | T]) :-
-    format('Nome: ~w\nDescrição: ~w\nCategoria: ~w\nFabricante: ~w\nData de Fabricação: ~w\nData de Expiração: ~w\nPreço: ~2f\nEstoque: ~d\n----------------------------------------\n', 
-           [Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock]),
+print_products([product(ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock) | T]) :-
+    format('ID: ~w\nNome: ~w\nDescrição: ~w\nCategoria: ~w\nFabricante: ~w\nData de Fabricação: ~w\nData de Expiração: ~w\nPreço: R$~2f\nEstoque: ~d', 
+    [ID, Name, Description, Category, Manufacture, ManufactureDate, ExpirationDate, Price, Stock]),
+    format('\n~`-t~168|~n'),
     print_products(T).
 
 alert_low_stock(Limit) :-

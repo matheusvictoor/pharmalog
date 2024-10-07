@@ -1,0 +1,6 @@
+:- dynamic product/9.
+
+
+
+
+

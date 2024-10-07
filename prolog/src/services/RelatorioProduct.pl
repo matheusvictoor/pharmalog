@@ -1,65 +1,101 @@
 :- module(relatorio_product, [
-    relatorio_por_preco/0, 
-    relatorio_por_categoria/0, 
-    relatorio_por_estoque/0, 
-    exibir_produtos/1, 
+    relatorio_por_preco/0,
+    relatorio_por_categoria/0,
+    relatorio_por_estoque/0,
+    exibir_produtos/1,
     menu_relatorio/0
 ]).
 
+:- use_module(product_service).
+:- use_module(library(readutil)).
 :- use_module(library(lists)).
 :- use_module(library(time)).
-:- use_module(product_service).
 
 relatorio_por_preco :-
-    write('Insira o preço mínimo: '), flush_output, read_line_to_string(user_input, PrecoMinStr), number_string(PrecoMin, PrecoMinStr),
-    write('Insira o preço máximo: '), flush_output, read_line_to_string(user_input, PrecoMaxStr), number_string(PrecoMax, PrecoMaxStr),
-    get_all_products(Produtos),
-    include(filtra_por_preco(PrecoMin, PrecoMax), Produtos, Filtrados),
-    exibir_produtos(Filtrados).
+    write('Insira o preço mínimo: '), flush_output,
+    read_line_to_string(user_input, PrecoMinStr),
+    number_string(PrecoMin, PrecoMinStr),
+    
+    write('Insira o preço máximo: '), flush_output,
+    read_line_to_string(user_input, PrecoMaxStr),
+    number_string(PrecoMax, PrecoMaxStr),
+    
+    get_all_products(Products),
+    filtrar_por_preco(PrecoMin, PrecoMax, Products, ProdutosFiltrados),
+    exibir_produtos(ProdutosFiltrados).
 
 relatorio_por_categoria :-
-    write('Insira a categoria: '), flush_output, read_line_to_string(user_input, Categoria),
-    get_all_products(Produtos),
-    include(filtra_por_categoria(Categoria), Produtos, Filtrados),
-    exibir_produtos(Filtrados).
+    write('Insira a categoria: '), flush_output,
+    read_line_to_string(user_input, Categoria),
+    
+    get_all_products(Products),
+    filtrar_por_categoria(Categoria, Products, ProdutosFiltrados),
+    exibir_produtos(ProdutosFiltrados).
 
 relatorio_por_estoque :-
-    write('Insira o estoque mínimo: '), flush_output, read_line_to_string(user_input, EstoqueMinStr), number_string(EstoqueMin, EstoqueMinStr),
-    write('Insira o estoque máximo: '), flush_output, read_line_to_string(user_input, EstoqueMaxStr), number_string(EstoqueMax, EstoqueMaxStr),
-    get_all_products(Produtos),
-    include(filtra_por_estoque(EstoqueMin, EstoqueMax), Produtos, Filtrados),
-    exibir_produtos(Filtrados).
+    write('Insira o estoque mínimo: '), flush_output,
+    read_line_to_string(user_input, EstoqueMinStr),
+    number_string(EstoqueMin, EstoqueMinStr),
+    
+    write('Insira o estoque máximo: '), flush_output,
+    read_line_to_string(user_input, EstoqueMaxStr),
+    number_string(EstoqueMax, EstoqueMaxStr),
+    
+    get_all_products(Products),
+    filtrar_por_estoque(EstoqueMin, EstoqueMax, Products, ProdutosFiltrados),
+    exibir_produtos(ProdutosFiltrados).
 
 exibir_produtos([]) :-
     write('\nNenhum produto encontrado :('), nl.
-exibir_produtos([Produto|Produtos]) :-
-    format_produto(Produto, FormattedProduct),
-    write(FormattedProduct), nl,
-    exibir_produtos(Produtos).
+exibir_produtos(Produtos) :-
+    write('\nProdutos Encontrados:\n'), nl,
+    maplist(print_produto, Produtos).
 
 menu_relatorio :-
-    write('\nSelecione uma opção:\n1. Relatório por faixa de preço\n2. Relatório por categoria\n3. Relatório por faixa de estoque\n0 <- Voltar\n'),
-    write('\nOpção -> '), flush_output, read_line_to_string(user_input, Option),
-    menu_opcao(Option).
+    write('\nSelecione uma opção de relatório:\n'),
+    write('1. Relatório por faixa de preço\n'),
+    write('2. Relatório por categoria\n'),
+    write('3. Relatório por faixa de estoque\n'),
+    write('0. Voltar\n'),
+    write('\nOpção -> '), flush_output,
+    
+    read_line_to_string(user_input, Opção),
+    tratar_opção_relatorio(Opção),
+    nl.
 
-menu_opcao("1") :- relatorio_por_preco.
-menu_opcao("2") :- relatorio_por_categoria.
-menu_opcao("3") :- relatorio_por_estoque.
-menu_opcao("0") :- write('\n<---\n').
-menu_opcao(_)   :- write('\nOpção inválida\n'), menu_relatorio.
+tratar_opção_relatorio("1") :- relatorio_por_preco, !.
+tratar_opção_relatorio("2") :- relatorio_por_categoria, !.
+tratar_opção_relatorio("3") :- relatorio_por_estoque, !.
+tratar_opção_relatorio("0") :- write('Voltando ao menu anterior...\n'), !.
+tratar_opção_relatorio(_) :-
+    write('Opção inválida. Tente novamente.'), nl,
+    menu_relatorio.
 
+filtrar_por_preco(Min, Max, Produtos, Filtrados) :-
+    include(produto_na_faixa_de_preco(Min, Max), Produtos, Filtrados).
 
-filtra_por_preco(PrecoMin, PrecoMax, product(_, _, _, _, _, Price, _)) :-
-    Price >= PrecoMin, Price =< PrecoMax.
+produto_na_faixa_de_preco(Min, Max, product(_, _, _, _, _, Preco, _)) :-
+    Preco >= Min,
+    Preco =< Max.
 
-filtra_por_categoria(Categoria, product(_, _, Cat, _, _, _, _)) :-
-    Cat = Categoria.
+filtrar_por_categoria(Categoria, Produtos, Filtrados) :-
+    include(produto_da_categoria(Categoria), Produtos, Filtrados).
 
-filtra_por_estoque(EstoqueMin, EstoqueMax, product(_, _, _, _, _, _, Stock)) :-
-    Stock >= EstoqueMin, Stock =< EstoqueMax.
+produto_da_categoria(Categoria, product(_, _, Categoria, _, _, _, _)).
 
+filtrar_por_estoque(Min, Max, Produtos, Filtrados) :-
+    include(produto_na_faixa_de_estoque(Min, Max), Produtos, Filtrados).
 
-format_produto(product(Name, Description, Category, ManufactureDate, ExpirationDate, Price, Stock), FormattedProduct) :-
-    format(atom(FormattedProduct), 
-           'Nome: ~w\nDescrição: ~w\nCategoria: ~w\nData de fabricação: ~w\nData de vencimento: ~w\nPreço: ~2f\nEstoque: ~d\n----------------------------------------',
-           [Name, Description, Category, ManufactureDate, ExpirationDate, Price, Stock]).
+produto_na_faixa_de_estoque(Min, Max, product(_, _, _, _, _, _, Estoque)) :-
+    Estoque >= Min,
+    Estoque =< Max.
+
+print_produto(product(Nome, Descricao, Categoria, DataFabricacao, DataVencimento, Preco, Estoque)) :-
+    format('Nome: ~w~n', [Nome]),
+    format('Descrição: ~w~n', [Descricao]),
+    format('Categoria: ~w~n', [Categoria]),
+    format('Data de Fabricação: ~w~n', [DataFabricacao]),
+    format('Data de Vencimento: ~w~n', [DataVencimento]),
+    format('Preço: ~2f~n', [Preco]),
+    format('Estoque: ~d~n', [Estoque]),
+    write('----------------------------------------'), nl.
