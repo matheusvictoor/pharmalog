@@ -4,11 +4,12 @@
 :- consult('../assets/menu_layout.pl').
 :- consult('../assets/user_layout.pl').
 :- consult('../assets/product_layout.pl').
-:- consult('../services/SaleService.pl'). 
+:- consult('../services/SaleService.pl').
 :- consult('../assets/sales_layout.pl').
 :- consult('../assets/client_layout.pl').
 :- consult('../assets/report_layout.pl').
 :- consult('../assets/chat_layout.pl').
+:- consult('../services/RelatorioProduct.pl').
 
 :- load_chat.
 
@@ -47,6 +48,6 @@ handle_menu_option(5) :-
 handle_menu_option(0) :- 
   writeln("Encerrando o programa..."), halt.
 
-handle_menu_option(_) :- 
+handle_menu_option(_) :-
   writeln("Opção inválida. Tente novamente."),
   menu.
