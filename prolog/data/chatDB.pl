@@ -1,0 +1,10 @@
+message('Cliente', "ola.", 488).
+message('Atendente', "oi.", 488).
+message('Cliente', "rsrsrs.", 488).
+message('Atendente', "rsrsrs.", 488).
+message('Cliente', "rsrsrs.r", 488).
+message('Atendente', "rsrs", 488).
+message('Cliente', "", 488).
+message('Atendente', "rs", 488).
+message('Cliente', ".", 488).
+message('Atendente', ".", 488).

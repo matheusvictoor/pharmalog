@@ -1,158 +1,114 @@
-:- module(client_service, [
-    create_client/0, 
-    get_all_clients/0, 
-    get_client_by_cpf/0, 
-    update_client/0, 
-    delete_client/0, 
-    add_sale_to_client/2, 
-    view_client_info/1, 
-    menu_client/0
-]).
+:- consult('../models/Client.pl').
+:- consult('../assets/client_layout.pl').
 
-:- use_module('../models/Client').  
-:- use_module(library(readutil)).
-:- use_module(library(lists)).
+menu_client :-
+  client_layout,
+  nl,
+  write("Escolha uma opção: "),
+  read(Option), nl,
+  handle_client_option(Option).
 
-valid_cpf(CPF) :-
-    string_length(CPF, 11),
-    string_chars(CPF, Digits),
-    maplist(is_digit, Digits).
-
-is_digit(Char) :- char_type(Char, digit).
-
-create_client :-
-    get_char(_),  
-    write('Nome: '), flush_output, read_line_to_string(user_input, Name),
-    write('Idade: '), flush_output, read_line_to_string(user_input, AgeStr), 
-    ( catch(number_string(Age, AgeStr), _, fail) -> true ; writeln('** Idade inválida! **'), fail),
-    write('Endereço: '), flush_output, read_line_to_string(user_input, Address),
-    write('CPF (somente números, 11 dígitos): '), flush_output, read_line_to_string(user_input, CPF),
-    (   \+ valid_cpf(CPF) -> 
-        writeln('** CPF inválido! O CPF deve ter 11 dígitos e conter apenas números. **'), fail
-    ;   client_exists(CPF) -> 
-        writeln('** CPF já cadastrado! **'), fail
-    ;   write('Telefone: '), flush_output, read_line_to_string(user_input, Phone),
-        Client = client(Name, Age, CPF, Address, Phone, []),
-        open('customerDB.pl', append, Stream),
-        write(Stream, Client), write(Stream, '.'), nl(Stream),
-        close(Stream),
-        write('** Cliente cadastrado com sucesso! **'), nl
-    ).
-
-
-client_exists(CPF) :-
-    get_all_clients(Clients),
-    member(client(_, _, CPF, _, _, _), Clients).
-
-get_all_clients :-
-    open('customerDB.pl', read, Stream),
-    read_terms(Stream, Clients),
-    close(Stream),
-    print_clients(Clients).
-
-get_client_by_cpf :-
-    write('Digite o CPF do Cliente: '), flush_output, read_line_to_string(user_input, CPF),
-    (   valid_cpf(CPF)
-    ->  get_all_clients(Clients),
-        (   member(client(_, Name, Age, CPF, Address, Phone, _), Clients)
-        ->  format('Nome: ~w | Idade: ~w | Endereço: ~w | Telefone: ~w~n', [Name, Age, Address, Phone])
-        ;   writeln('** Cliente não encontrado! **')
-        )
-    ;   writeln('** CPF inválido! **')
-    ).
-
-view_client_info(CPF) :-
-    (   valid_cpf(CPF)
-    ->  (   get_client_by_cpf(CPF, Client)
-        ->  format('Informações do Cliente: ~w~n', [Client])
-        ;   writeln('** Cliente não encontrado! **')
-        )
-    ;   writeln('** CPF inválido! **')
-    ).
-
-update_client :-
-    write('Digite o CPF do Cliente para atualizar: '), flush_output, read_line_to_string(user_input, CPF),
-    (   valid_cpf(CPF)
-    ->  (   client_exists(CPF)
-        ->  get_all_clients(Clients),
-            maplist(update_if_found(CPF), Clients, UpdatedClients),
-            open('customerDB.pl', write, Stream),
-            write_terms(Stream, UpdatedClients),
-            close(Stream),
-            writeln('** Cliente atualizado com sucesso! **')
-        ;   writeln('** Cliente não encontrado! **')
-        )
-    ;   writeln('** CPF inválido! **')
-    ).
-
-update_if_found(CPF, client(_, _, CPF, _, _, Sales), UpdatedClient) :-
-    write('Novo Nome: '), flush_output, read_line_to_string(user_input, NewName),
-    write('Nova Idade: '), flush_output, read_line_to_string(user_input, NewAgeStr), number_string(NewAge, NewAgeStr),
-    write('Novo Endereço: '), flush_output, read_line_to_string(user_input, NewAddress),
-    write('Novo Telefone: '), flush_output, read_line_to_string(user_input, NewPhone),
-    UpdatedClient = client(NewName, NewAge, CPF, NewAddress, NewPhone, Sales).
-update_if_found(_, Client, Client).
-
-delete_client :-
-    write('Digite o CPF do Cliente para deletar: '), flush_output, read_line_to_string(user_input, CPF),
-    (   valid_cpf(CPF)
-    ->  get_all_clients(Clients),
-        exclude(client_cpf_match(CPF), Clients, FilteredClients),
-        open('customerDB.pl', write, Stream),
-        write_terms(Stream, FilteredClients),
-        close(Stream),
-        writeln('** Cliente deletado com sucesso! **')
-    ;   writeln('** CPF inválido! **')
-    ).
-
-client_cpf_match(CPF, client(_, _, CPF, _, _, _)).
-
-add_sale_to_client(CPF, NewSale) :-
-    get_all_clients(Clients),
-    maplist(add_sale(CPF, NewSale), Clients, UpdatedClients),
-    open('customerDB.pl', write, Stream),
-    write_terms(Stream, UpdatedClients),
-    close(Stream),
-    writeln('** Venda adicionada ao cliente com sucesso! **').
-
-add_sale(CPF, NewSale, client(Name, Age, CPF, Address, Phone, Sales), client(Name, Age, CPF, Address, Phone, [NewSale|Sales])).
-add_sale(_, _, Client, Client).
-
-menu_client :- 
-    client_layout, 
-    nl,
-    write("Escolha uma opção: "), flush_output,
-    read(Option),
-    handle_client_option(Option).
 
 handle_client_option(1) :-
-    create_client,
-    menu_client.
+  writeln("\nNome: "), read(Name),
+  writeln("\nIdade: "), read(Age),
+  writeln("\nEndereço: "), read(Address),
+  writeln("\Telefone: "), read(Phone),
+  writeln("\nCPF: "), read(CPF),
+  ( validar_cpf(CPF) ->  % Valida se o CPF é válido
+    ( client_exists_cpf(CPF) ->
+      exibir_mensagem_formatada("CPF já cadastrado!"),
+      aguardar_enter,
+      menu_client
+    ;
+      create_client(Name, Age, Address, CPF, Phone),
+      exibir_mensagem_formatada('✓ Usuário cadastrado com sucesso!'),
+      aguardar_enter,
+      menu_client
+    )
+;
+  exibir_mensagem_formatada('✗ CPF inválido! Deve conter apenas números e ter 11 dígitos.'),
+  aguardar_enter,
+  menu_client
+  ).
 
 handle_client_option(2) :-
-    get_client_by_cpf,
-    menu_client.
+  writeln("CPF do usuário para buscar: "), read(CPF),
+  ( client_exists_cpf(CPF) ->
+    get_client_by_cpf(CPF, Client), nl,
+    exibir_mensagem_formatada('Informações do Cliente'), nl,
+    print_clients(Client),
+    aguardar_enter
+  ;
+    exibir_mensagem_formatada('✗ Cliente não encontrado!'), nl, nl,
+    aguardar_enter
+  ),
+  menu_client.
 
 handle_client_option(3) :-
-    get_all_clients,
-    menu_client.
+  exibir_mensagem_formatada('Lista de Clients:'), nl, nl,
+  list_all_clients,
+  aguardar_enter,
+  menu_client.
 
 handle_client_option(4) :-
-    update_client,
-    menu_client.
+  writeln("CPF do cliente para atualizar: "), read(CPF),
+  ( client_exists_cpf(CPF) ->
+    writeln("Novo Endereço: "), read(NewAddress),
+    writeln("Novo Telefone: "), read(NewPhone),
+    update_client(Name, Age, CPF, NewAddress, NewPhone, Sales), nl,
+    exibir_mensagem_formatada('✓ Cliente atualizado com sucesso!'),
+    aguardar_enter
+  ;
+    exibir_mensagem_formatada('✗ Cliente não encontrado!'),
+    aguardar_enter
+  ),
+  menu_client.
+
 
 handle_client_option(5) :-
-    delete_client,
-    menu_client.
+  writeln("CPF do cliente para deletar: "), read(CPF),
+  ( client_exists_cpf(CPF) ->
+    delete_client(CPF),
+    exibir_mensagem_formatada('✓ Cliente excluído com sucesso!'),
+    aguardar_enter
+  ;
+    exibir_mensagem_formatada('✗ Cliente não encontrado!'), nl, nl,
+    aguardar_enter
+  ),
+  menu_client.
 
 handle_client_option(0) :-
-    writeln("\nVoltando ao menu principal...").
+  writeln("\n<--- Voltando ao Menu Principal").
+
 
 handle_client_option(_) :-
-    writeln("\n** Opção inválida. Tente novamente! **"),
-    menu_client.
+  exibir_mensagem_formatada("✗ Opção inválida. Tente novamente."),
+  aguardar_enter,
+  menu_client.
 
-print_clients([]) :- writeln('Nenhum cliente cadastrado.').
-print_clients([client(ID, Name, Age, CPF, Address, Phone, _) | Rest]) :-
-    format('ID: ~w | Nome: ~w | Idade: ~w | CPF: ~w | Endereço: ~w | Telefone: ~w~n', [ID, Name, Age, CPF, Address, Phone]),
-    print_clients(Rest).
+
+exibir_mensagem_formatada(Mensagem) :-
+    nl,
+    format('~`-t~168|~n'),
+    string_length(Mensagem, TamMsg),
+    EspacoTotal is 168 - TamMsg - 2,
+    EspacoEsquerda is EspacoTotal // 2,
+    EspacoDireita is EspacoTotal - EspacoEsquerda,
+    format('~` t~*|~w~` t~*|~n', [EspacoEsquerda, Mensagem, EspacoDireita]),
+    format('~`-t~168|~n'),
+    nl.
+
+
+aguardar_enter :-
+    writeln("\nPressione ENTER para continuar..."),
+    get_char(_),
+    get_char(_).
+
+validar_cpf(CPF) :-
+    atom_length(CPF, 11),    % Verifica se o CPF tem 11 dígitos
+    atom_chars(CPF, Chars),  % Transforma o átomo CPF em uma lista de caracteres
+    maplist(is_digit, Chars). % Verifica se todos os caracteres são dígitos
+
+is_digit(Char) :-
+    char_type(Char, digit). % Verifica se um caractere é um dígito

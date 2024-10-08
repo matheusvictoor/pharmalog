@@ -1,4 +1,4 @@
 :- dynamic user/4.
 
-user(maria, 111111111, 123, gerente).
+user(hiago, 131, 123, gerente).
 
