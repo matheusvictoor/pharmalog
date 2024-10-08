@@ -6,7 +6,7 @@ menu_client :-
   nl,
   write("Escolha uma opção: "),
   read(Option), nl,
-  handle_user_option(Option).
+  handle_client_option(Option).
 
 
 handle_client_option(1) :-
@@ -22,7 +22,7 @@ handle_client_option(1) :-
       menu_client
     ;
       create_client(Name, Age, Address, CPF, Phone),
-      exibir_mensagem_formatada('✓ Usuário cadastrado com sucesso!'),
+      exibir_mensagem_formatada('✓ Cliente cadastrado com sucesso!'),
       aguardar_enter,
       menu_client
     )
@@ -78,11 +78,11 @@ handle_client_option(5) :-
   ),
   menu_client.
 
-handle_user_option(0) :-
+handle_client_option(0) :-
   writeln("\n<--- Voltando ao Menu Principal").
 
 
-handle_user_option(_) :-
+handle_client_option(_) :-
   exibir_mensagem_formatada("✗ Opção inválida. Tente novamente."),
   aguardar_enter,
   menu_client.
